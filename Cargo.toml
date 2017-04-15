@@ -1,0 +1,8 @@
+[package]
+name = "dockmaster"
+version = "0.1.0"
+authors = ["Shinsuke-Abe <mao.instantlife@gmail.com>"]
+
+[dependencies]
+docopt = "0.7"
+rustc-serialize = "0.3"

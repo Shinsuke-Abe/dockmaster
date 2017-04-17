@@ -39,5 +39,10 @@ fn main() {
 
         base_dir.push(args.arg_project_name);
         println!("  project directory is {}", base_dir.display());
+        // TODO create project sub tree
+        //     project-base > apps > docker-compose_default.yml
+        //                  > env > default.env
+        //                  > data
+        //                  > bin
     }
 }

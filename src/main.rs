@@ -8,19 +8,17 @@ const USAGE: &'static str = "
 Dockmaster.
 
 Usage:
-    dockmaster create <project-name> [--base=<base-dir>]
+    dockmaster create <project-name>
     dockmaster (-h | --help)
     dockmaster --version
 
 Options:
-    --base=<base-dir>   project base directory(default is current directory).
     -h --help           Show this screen.
     --version           Show version.
 ";
 
 #[derive(Debug, RustcDecodable)]
 struct Args {
-    flag_base: String,
     arg_project_name: String,
     cmd_create: bool,
 }
@@ -32,10 +30,14 @@ fn main() {
     println!("{:?}", args);
     if args.cmd_create {
         println!("  createing {}", args.arg_project_name);
-        if !args.flag_base.is_empty() {
-            println!("  base directory is {}", args.flag_base);
-        } else {
-            println!("  base directory is {}", env::current_dir().unwrap().display());
-        }
+
+        let mut base_dir = env::home_dir().unwrap();
+
+        base_dir.push("dockermaster");
+        // TODO not default base directory -> environment value
+        println!("  base directory is {}", base_dir.display());
+
+        base_dir.push(args.arg_project_name);
+        println!("  project directory is {}", base_dir.display());
     }
 }

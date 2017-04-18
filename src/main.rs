@@ -3,6 +3,7 @@ extern crate docopt;
 
 use docopt::Docopt;
 use std::env;
+use std::fs;
 
 const USAGE: &'static str = "
 Dockmaster.
@@ -33,12 +34,17 @@ fn main() {
 
         let mut base_dir = env::home_dir().unwrap();
 
-        base_dir.push("dockermaster");
         // TODO not default base directory -> environment value
-        println!("  base directory is {}", base_dir.display());
-
+        base_dir.push("dockermaster");
         base_dir.push(args.arg_project_name);
         println!("  project directory is {}", base_dir.display());
+
+        if base_dir.exists() {
+            println!("  project directory is already exists.");
+            std::process::exit(9);
+        }
+
+        let _ = fs::create_dir_all(base_dir);
         // TODO create project sub tree
         //     project-base > apps > docker-compose_default.yml
         //                  > env > default.env

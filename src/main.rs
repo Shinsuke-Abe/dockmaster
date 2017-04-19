@@ -27,6 +27,7 @@ struct Args {
     cmd_ls: bool,
 }
 
+// TODO resource template -> https://github.com/Keats/tera
 fn main() {
     let args: Args = Docopt::new(USAGE)
                             .and_then(|d| d.decode())

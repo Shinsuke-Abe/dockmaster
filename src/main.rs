@@ -59,10 +59,9 @@ fn create_project_base(args: Args) -> i32 {
         9
     } else {
         let _ = fs::create_dir_all(&mut base_dir);
-        let _ = fs::create_dir_all(&mut base_dir.join("apps"));
-        let _ = fs::create_dir_all(&mut base_dir.join("env"));
-        let _ = fs::create_dir_all(&mut base_dir.join("data"));
-        let _ = fs::create_dir_all(&mut base_dir.join("bin"));
+        for sub_dir in &["apps", "env", "data", "bin"] {
+            let _ = fs::create_dir_all(&mut base_dir.join(sub_dir));
+        }
         0
     }
 }

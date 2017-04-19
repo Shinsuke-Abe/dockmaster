@@ -38,6 +38,13 @@ fn main() {
     } else if args.cmd_ls {
         println!("  listing projects");
         
+        for path in fs::read_dir(application_base_directory()).unwrap() {
+            let unwraped_path = path.unwrap();
+            
+            if unwraped_path.file_type().unwrap().is_dir() {
+                println!("  {}", unwraped_path.file_name().into_string().unwrap());
+            }
+        }
     }
 }
 

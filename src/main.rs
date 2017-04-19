@@ -32,8 +32,6 @@ fn main() {
                             .and_then(|d| d.decode())
                             .unwrap_or_else(|e| e.exit());
     println!("{:?}", args);
-
-    let mut base_dir = env::home_dir().unwrap();
     
     if args.cmd_create {
         std::process::exit(create_project_base(args));
@@ -46,11 +44,7 @@ fn main() {
 fn application_base_directory() -> PathBuf {
     // TODO not default base directory -> environment value
     // TODO result http://osamu0329.hatenablog.jp/entry/2015/05/10/021234
-    let mut base_dir = env::home_dir().unwrap();
-
-    base_dir.push("dockermaster");
-
-    base_dir
+    env::home_dir().unwrap().join("dockermaster")
 }
 
 fn create_project_base(args: Args) -> i32 {

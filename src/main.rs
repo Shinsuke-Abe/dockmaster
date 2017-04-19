@@ -60,7 +60,6 @@ fn create_project_base(args: Args) -> i32 {
 
     let mut base_dir = application_base_directory();
     base_dir.push(args.arg_project_name);
-    println!("  project directory is {}", base_dir.display());
 
     if base_dir.exists() {
         println!("  project directory is already exists.");

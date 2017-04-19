@@ -4,6 +4,7 @@ extern crate docopt;
 use docopt::Docopt;
 use std::env;
 use std::fs;
+use std::path::PathBuf;
 
 const USAGE: &'static str = "
 Dockmaster.
@@ -31,20 +32,31 @@ fn main() {
                             .and_then(|d| d.decode())
                             .unwrap_or_else(|e| e.exit());
     println!("{:?}", args);
+
+    let mut base_dir = env::home_dir().unwrap();
+    
     if args.cmd_create {
         std::process::exit(create_project_base(args));
     } else if args.cmd_ls {
         println!("  listing projects");
+        
     }
+}
+
+fn application_base_directory() -> PathBuf {
+    // TODO not default base directory -> environment value
+    // TODO result http://osamu0329.hatenablog.jp/entry/2015/05/10/021234
+    let mut base_dir = env::home_dir().unwrap();
+
+    base_dir.push("dockermaster");
+
+    base_dir
 }
 
 fn create_project_base(args: Args) -> i32 {
     println!("  createing {}", args.arg_project_name);
 
-    let mut base_dir = env::home_dir().unwrap();
-
-    // TODO not default base directory -> environment value
-    base_dir.push("dockermaster");
+    let mut base_dir = application_base_directory();
     base_dir.push(args.arg_project_name);
     println!("  project directory is {}", base_dir.display());
 

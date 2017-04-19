@@ -48,12 +48,11 @@ fn create_project_base(args: Args) -> i32 {
         println!("  project directory is already exists.");
         9
     } else {
-        let _ = fs::create_dir_all(base_dir);
+        let _ = fs::create_dir_all(&mut base_dir);
+        let _ = fs::create_dir_all(&mut base_dir.join("apps"));
+        let _ = fs::create_dir_all(&mut base_dir.join("env"));
+        let _ = fs::create_dir_all(&mut base_dir.join("data"));
+        let _ = fs::create_dir_all(&mut base_dir.join("bin"));
         0
     }
-            // TODO create project sub tree
-        //     project-base > apps > docker-compose_default.yml
-        //                  > env > default.env
-        //                  > data
-        //                  > bin
 }

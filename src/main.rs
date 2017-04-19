@@ -10,6 +10,7 @@ Dockmaster.
 
 Usage:
     dockmaster create <project-name>
+    dockmaster ls
     dockmaster (-h | --help)
     dockmaster --version
 
@@ -22,6 +23,7 @@ Options:
 struct Args {
     arg_project_name: String,
     cmd_create: bool,
+    cmd_ls: bool,
 }
 
 fn main() {
@@ -31,6 +33,8 @@ fn main() {
     println!("{:?}", args);
     if args.cmd_create {
         std::process::exit(create_project_base(args));
+    } else if args.cmd_ls {
+        println!("  listing projects");
     }
 }
 

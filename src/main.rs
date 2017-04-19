@@ -30,25 +30,30 @@ fn main() {
                             .unwrap_or_else(|e| e.exit());
     println!("{:?}", args);
     if args.cmd_create {
-        println!("  createing {}", args.arg_project_name);
+        std::process::exit(create_project_base(args));
+    }
+}
 
-        let mut base_dir = env::home_dir().unwrap();
+fn create_project_base(args: Args) -> i32 {
+    println!("  createing {}", args.arg_project_name);
 
-        // TODO not default base directory -> environment value
-        base_dir.push("dockermaster");
-        base_dir.push(args.arg_project_name);
-        println!("  project directory is {}", base_dir.display());
+    let mut base_dir = env::home_dir().unwrap();
 
-        if base_dir.exists() {
-            println!("  project directory is already exists.");
-            std::process::exit(9);
-        }
+    // TODO not default base directory -> environment value
+    base_dir.push("dockermaster");
+    base_dir.push(args.arg_project_name);
+    println!("  project directory is {}", base_dir.display());
 
+    if base_dir.exists() {
+        println!("  project directory is already exists.");
+        9
+    } else {
         let _ = fs::create_dir_all(base_dir);
-        // TODO create project sub tree
+        0
+    }
+            // TODO create project sub tree
         //     project-base > apps > docker-compose_default.yml
         //                  > env > default.env
         //                  > data
         //                  > bin
-    }
 }

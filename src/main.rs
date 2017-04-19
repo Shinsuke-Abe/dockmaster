@@ -38,6 +38,7 @@ fn main() {
     } else if args.cmd_ls {
         println!("  listing projects");
         
+        // TODO filter chain...
         for path in fs::read_dir(application_base_directory()).unwrap() {
             let unwraped_path = path.unwrap();
             

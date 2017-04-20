@@ -30,23 +30,14 @@ struct Args {
 // TODO resource template -> https://github.com/Keats/tera
 fn main() {
     let args: Args = Docopt::new(USAGE)
-                            .and_then(|d| d.decode())
-                            .unwrap_or_else(|e| e.exit());
+        .and_then(|d| d.decode())
+        .unwrap_or_else(|e| e.exit());
     println!("{:?}", args);
-    
+
     if args.cmd_create {
         std::process::exit(create_project_base(args));
     } else if args.cmd_ls {
-        println!("  listing projects");
-        
-        // TODO filter chain...
-        for path in fs::read_dir(application_base_directory()).unwrap() {
-            let unwraped_path = path.unwrap();
-            
-            if unwraped_path.file_type().unwrap().is_dir() {
-                println!("  {}", unwraped_path.file_name().into_string().unwrap());
-            }
-        }
+        std::process::exit(list_all_projects());
     }
 }
 
@@ -56,6 +47,7 @@ fn application_base_directory() -> PathBuf {
     env::home_dir().unwrap().join("dockermaster")
 }
 
+/// create <project> サブコマンド
 fn create_project_base(args: Args) -> i32 {
     println!("  createing {}", args.arg_project_name);
 
@@ -72,4 +64,20 @@ fn create_project_base(args: Args) -> i32 {
         }
         0
     }
+}
+
+/// ls サブコマンド
+fn list_all_projects() -> i32 {
+    println!("  listing projects");
+
+    // TODO filter chain...
+    for path in fs::read_dir(application_base_directory()).unwrap() {
+        let unwraped_path = path.unwrap();
+
+        if unwraped_path.file_type().unwrap().is_dir() {
+            println!("  {}", unwraped_path.file_name().into_string().unwrap());
+        }
+    }
+
+    0
 }

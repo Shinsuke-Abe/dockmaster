@@ -71,6 +71,9 @@ fn list_all_projects() -> i32 {
     println!("  listing projects");
 
     // TODO filter chain...
+    // fs::read_dir(application_base_directory()).unwrap().filter(|p| p.unwrap().file_type().unwrap().is_dir())
+    //                                                                ^^^^ cannot move out of borrowed content
+    // caused by unwrap? http://qiita.com/tatsuya6502/items/10b4227beadf44f302fd
     for path in fs::read_dir(application_base_directory()).unwrap() {
         let unwraped_path = path.unwrap();
 

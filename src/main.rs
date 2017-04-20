@@ -5,6 +5,7 @@ use docopt::Docopt;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
+use std::process::Command;
 
 const USAGE: &'static str = "
 Dockmaster.
@@ -43,8 +44,16 @@ fn main() {
         std::process::exit(list_all_projects());
     } else if args.cmd_standby {
         // TODO exec docker-compose,print set environment variable command
-        // http://qiita.com/agatan/items/ed2780628d20a0e343b8
-        if application_base_directory().join(&args.arg_project_name).exists() {
+        let project_dir = application_base_directory().join(&args.arg_project_name);
+        if project_dir.exists() {
+            let output = Command::new("docker-compose")
+                    .args(&["-f", &format!("{}/apps/docker-compose-{}.yml", &project_dir.display(), "default"), "start"])
+                    .output()
+                    .expect("failed to execute docker-compose");
+            
+            println!("status: {}", output.status);
+            println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+            println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
             unimplemented!();
         } else {
             println!("  project[{}] is not exists.", args.arg_project_name);

@@ -42,6 +42,8 @@ fn main() {
     } else if args.cmd_ls {
         std::process::exit(list_all_projects());
     } else if args.cmd_standby {
+        // TODO exec docker-compose,print set environment variable command
+        // http://qiita.com/agatan/items/ed2780628d20a0e343b8
         unimplemented!();
     }
 }

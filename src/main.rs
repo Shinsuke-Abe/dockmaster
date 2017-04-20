@@ -27,6 +27,7 @@ struct Args {
     arg_project_name: String,
     cmd_create: bool,
     cmd_ls: bool,
+    cmd_standby: bool,
 }
 
 // TODO resource template -> https://github.com/Keats/tera
@@ -40,6 +41,8 @@ fn main() {
         std::process::exit(create_project_base(args));
     } else if args.cmd_ls {
         std::process::exit(list_all_projects());
+    } else if args.cmd_standby {
+        unimplemented!();
     }
 }
 

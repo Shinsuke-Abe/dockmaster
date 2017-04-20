@@ -12,12 +12,14 @@ Dockmaster.
 Usage:
     dockmaster create <project-name>
     dockmaster ls
+    dockmaster standby <project-name> [--env=<env-name>]
     dockmaster (-h | --help)
     dockmaster --version
 
 Options:
     -h --help           Show this screen.
     --version           Show version.
+    --env=<env-name>    Environment name for stand-by project [default: default].
 ";
 
 #[derive(Debug, RustcDecodable)]

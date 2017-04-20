@@ -44,7 +44,12 @@ fn main() {
     } else if args.cmd_standby {
         // TODO exec docker-compose,print set environment variable command
         // http://qiita.com/agatan/items/ed2780628d20a0e343b8
-        unimplemented!();
+        if application_base_directory().join(&args.arg_project_name).exists() {
+            unimplemented!();
+        } else {
+            println!("  project[{}] is not exists.", args.arg_project_name);
+            std::process::exit(9);
+        }
     }
 }
 

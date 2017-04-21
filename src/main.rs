@@ -43,7 +43,6 @@ fn main() {
     } else if args.cmd_ls {
         std::process::exit(list_all_projects());
     } else if args.cmd_standby {
-        // TODO exec docker-compose,print set environment variable command
         let project_dir = application_base_directory().join(&args.arg_project_name);
         if project_dir.exists() {
             // TODO use docker-compose up -d/stop

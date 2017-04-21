@@ -13,7 +13,8 @@ Dockmaster.
 Usage:
     dockmaster create <project-name>
     dockmaster ls
-    dockmaster standby <project-name> [--env=<env-name>]
+    dockmaster standby <project-name> [--env=<env-name>] 
+    dockmaster terminate <project-name>
     dockmaster (-h | --help)
     dockmaster --version
 
@@ -29,6 +30,7 @@ struct Args {
     cmd_create: bool,
     cmd_ls: bool,
     cmd_standby: bool,
+    cmd_terminate: bool,
 }
 
 // TODO resource template -> https://github.com/Keats/tera
@@ -45,7 +47,6 @@ fn main() {
     } else if args.cmd_standby {
         let project_dir = application_base_directory().join(&args.arg_project_name);
         if project_dir.exists() {
-            // TODO use docker-compose up -d/stop
             let output = Command::new("docker-compose")
                     .env("COMPOSE_FILE", &format!("{}/apps/docker-compose-{}.yml", &project_dir.display(), "default"))
                     .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
@@ -62,6 +63,9 @@ fn main() {
             println!("  project[{}] is not exists.", args.arg_project_name);
             std::process::exit(9);
         }
+    } else if args.cmd_terminate {
+        // TODO use docker-compose stop
+        unimplemented!();
     }
 }
 

@@ -6,6 +6,7 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
+use std::ffi::OsStr;
 
 const USAGE: &'static str = "
 Dockmaster.
@@ -34,7 +35,7 @@ struct Args {
 }
 
 // TODO resource template -> https://github.com/Keats/tera
-// TODO common function for command execution
+// TODO implement dockmaster trait
 fn main() {
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.decode())
@@ -61,7 +62,7 @@ fn application_base_directory() -> PathBuf {
     env::home_dir().unwrap().join("dockermaster")
 }
 
-/// create <project> サブコマンド
+/// create <project> sub command
 fn create_project_base(args: Args) -> i32 {
     println!("  createing {}", args.arg_project_name);
 
@@ -80,7 +81,7 @@ fn create_project_base(args: Args) -> i32 {
     }
 }
 
-/// ls サブコマンド
+/// ls sub command
 fn list_all_projects() -> i32 {
     println!("  listing projects");
 
@@ -99,6 +100,7 @@ fn list_all_projects() -> i32 {
     0
 }
 
+/// project operation sub command base
 fn project_operation(args: &Args, operations: &Fn(&Args) -> ()) -> i32 {
     let project_dir = application_base_directory().join(&args.arg_project_name);
     if project_dir.exists() {
@@ -110,28 +112,21 @@ fn project_operation(args: &Args, operations: &Fn(&Args) -> ()) -> i32 {
     }
 }
 
+/// standby <project-name> sub command
 fn standby_project(args: &Args) {
     let project_dir = application_base_directory().join(&args.arg_project_name);
-    let output = Command::new("docker-compose")
-        .env("COMPOSE_FILE",
-             &format!("{}/apps/docker-compose-{}.yml",
-                      &project_dir.display(),
-                      "default"))
-        .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
-        .args(&["up", "-d"])
-        .output()
-        .expect("failed to execute docker-compose");
-
-    println!("status: {}", output.status);
-    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-    println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-
+    execute_docker_compose(args, &["up", "-d"]);
     println!("export environment variables: source {}/env/{}.env",
              &project_dir.display(),
              "default");
 }
 
+/// terminate <project-name> sub command
 fn terminate_project(args: &Args) {
+    execute_docker_compose(args, &["stop"]);
+}
+
+fn execute_docker_compose<I, S>(args: &Args, commands: I) where I: IntoIterator<Item=S>, S: AsRef<OsStr> {
     let project_dir = application_base_directory().join(&args.arg_project_name);
     let output = Command::new("docker-compose")
         .env("COMPOSE_FILE",
@@ -139,7 +134,7 @@ fn terminate_project(args: &Args) {
                       &project_dir.display(),
                       "default"))
         .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
-        .args(&["stop"])
+        .args(commands)
         .output()
         .expect("failed to execute docker-compose");
 

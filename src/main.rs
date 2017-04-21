@@ -34,7 +34,6 @@ struct Args {
 }
 
 // TODO resource template -> https://github.com/Keats/tera
-// TODO base function for project operations
 // TODO common function for command execution
 fn main() {
     let args: Args = Docopt::new(USAGE)
@@ -42,51 +41,18 @@ fn main() {
         .unwrap_or_else(|e| e.exit());
     println!("{:?}", args);
 
-    if args.cmd_create {
-        std::process::exit(create_project_base(args));
-    } else if args.cmd_ls {
-        std::process::exit(list_all_projects());
-    } else if args.cmd_standby {
-        let project_dir = application_base_directory().join(&args.arg_project_name);
-        if project_dir.exists() {
-            let output = Command::new("docker-compose")
-                    .env("COMPOSE_FILE", &format!("{}/apps/docker-compose-{}.yml", &project_dir.display(), "default"))
-                    .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
-                    .args(&["up", "-d"])
-                    .output()
-                    .expect("failed to execute docker-compose");
-            
-            println!("status: {}", output.status);
-            println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-            println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-            
-            println!("export environment variables: source {}/env/{}.env", &project_dir.display(), "default");
-            std::process::exit(0);
+    std::process::exit(
+        if args.cmd_create {
+            create_project_base(args)
+        } else if args.cmd_ls {
+            list_all_projects()
+        } else if args.cmd_standby {
+            project_operation(&args, &standby_project)
+        } else if args.cmd_terminate {
+            project_operation(&args, &terminate_project)
         } else {
-            println!("  project[{}] is not exists.", args.arg_project_name);
-            std::process::exit(9);
-        }
-    } else if args.cmd_terminate {
-        // TODO use docker-compose stop
-        let project_dir = application_base_directory().join(&args.arg_project_name);
-        if project_dir.exists() {
-            let output = Command::new("docker-compose")
-                    .env("COMPOSE_FILE", &format!("{}/apps/docker-compose-{}.yml", &project_dir.display(), "default"))
-                    .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
-                    .args(&["stop"])
-                    .output()
-                    .expect("failed to execute docker-compose");
-            
-            println!("status: {}", output.status);
-            println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-            println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-
-            std::process::exit(0);
-        } else {
-            println!("  project[{}] is not exists.", args.arg_project_name);
-            std::process::exit(9);
-        }
-    }
+            0
+        });
 }
 
 fn application_base_directory() -> PathBuf {
@@ -131,4 +97,53 @@ fn list_all_projects() -> i32 {
     }
 
     0
+}
+
+fn project_operation(args: &Args, operations: &Fn(&Args) -> ()) -> i32 {
+    let project_dir = application_base_directory().join(&args.arg_project_name);
+    if project_dir.exists() {
+        operations(args);
+        0
+    } else {
+        println!("  project[{}] is not exists.", args.arg_project_name);
+        9
+    }
+}
+
+fn standby_project(args: &Args) {
+    let project_dir = application_base_directory().join(&args.arg_project_name);
+    let output = Command::new("docker-compose")
+        .env("COMPOSE_FILE",
+             &format!("{}/apps/docker-compose-{}.yml",
+                      &project_dir.display(),
+                      "default"))
+        .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
+        .args(&["up", "-d"])
+        .output()
+        .expect("failed to execute docker-compose");
+
+    println!("status: {}", output.status);
+    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+    println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+
+    println!("export environment variables: source {}/env/{}.env",
+             &project_dir.display(),
+             "default");
+}
+
+fn terminate_project(args: &Args) {
+    let project_dir = application_base_directory().join(&args.arg_project_name);
+    let output = Command::new("docker-compose")
+        .env("COMPOSE_FILE",
+             &format!("{}/apps/docker-compose-{}.yml",
+                      &project_dir.display(),
+                      "default"))
+        .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
+        .args(&["stop"])
+        .output()
+        .expect("failed to execute docker-compose");
+
+    println!("status: {}", output.status);
+    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+    println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
 }

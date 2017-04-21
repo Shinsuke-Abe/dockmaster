@@ -36,6 +36,8 @@ struct Args {
 
 // TODO resource template -> https://github.com/Keats/tera
 // TODO implement dockmaster trait
+// -> http://qiita.com/mandel59/items/e9a5438f4c1d70cffb7a
+// -> http://rust-lang-ja.org/rust-by-example/trait.html
 fn main() {
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.decode())

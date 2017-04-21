@@ -34,6 +34,8 @@ struct Args {
 }
 
 // TODO resource template -> https://github.com/Keats/tera
+// TODO base function for project operations
+// TODO common function for command execution
 fn main() {
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.decode())
@@ -58,14 +60,32 @@ fn main() {
             println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
             println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
             
-            println!("export environment variables: source {}/env/{}.env", &project_dir.display(), "default")
+            println!("export environment variables: source {}/env/{}.env", &project_dir.display(), "default");
+            std::process::exit(0);
         } else {
             println!("  project[{}] is not exists.", args.arg_project_name);
             std::process::exit(9);
         }
     } else if args.cmd_terminate {
         // TODO use docker-compose stop
-        unimplemented!();
+        let project_dir = application_base_directory().join(&args.arg_project_name);
+        if project_dir.exists() {
+            let output = Command::new("docker-compose")
+                    .env("COMPOSE_FILE", &format!("{}/apps/docker-compose-{}.yml", &project_dir.display(), "default"))
+                    .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
+                    .args(&["stop"])
+                    .output()
+                    .expect("failed to execute docker-compose");
+            
+            println!("status: {}", output.status);
+            println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+            println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+
+            std::process::exit(0);
+        } else {
+            println!("  project[{}] is not exists.", args.arg_project_name);
+            std::process::exit(9);
+        }
     }
 }
 

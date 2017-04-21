@@ -46,8 +46,11 @@ fn main() {
         // TODO exec docker-compose,print set environment variable command
         let project_dir = application_base_directory().join(&args.arg_project_name);
         if project_dir.exists() {
+            // TODO use docker-compose up -d/stop
             let output = Command::new("docker-compose")
-                    .args(&["-f", &format!("{}/apps/docker-compose-{}.yml", &project_dir.display(), "default"), "start"])
+                    .env("COMPOSE_FILE", &format!("{}/apps/docker-compose-{}.yml", &project_dir.display(), "default"))
+                    .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
+                    .args(&["up", "-d"])
                     .output()
                     .expect("failed to execute docker-compose");
             

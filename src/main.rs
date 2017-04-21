@@ -57,7 +57,8 @@ fn main() {
             println!("status: {}", output.status);
             println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
             println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-            unimplemented!();
+            
+            println!("export environment variables: source {}/env/{}.env", &project_dir.display(), "default")
         } else {
             println!("  project[{}] is not exists.", args.arg_project_name);
             std::process::exit(9);

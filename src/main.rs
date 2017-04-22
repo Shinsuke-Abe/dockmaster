@@ -53,7 +53,7 @@ fn main() {
         if args.cmd_create {
             create_project_base(args)
         } else if args.cmd_ls {
-            list_all_projects()
+            args.list_all_projects()
         } else if args.cmd_standby {
             project_operation(&args, &standby_project)
         } else if args.cmd_terminate {
@@ -88,24 +88,24 @@ fn create_project_base(args: Args) -> i32 {
     }
 }
 
-/// ls sub command
-fn list_all_projects() -> i32 {
-    println!("  listing projects");
+// /// ls sub command
+// fn list_all_projects() -> i32 {
+//     println!("  listing projects");
 
-    // TODO filter chain...
-    // fs::read_dir(application_base_directory()).unwrap().filter(|p| p.unwrap().file_type().unwrap().is_dir())
-    //                                                                ^^^^ cannot move out of borrowed content
-    // caused by unwrap? http://qiita.com/tatsuya6502/items/10b4227beadf44f302fd
-    for path in fs::read_dir(application_base_directory()).unwrap() {
-        let unwraped_path = path.unwrap();
+//     // TODO filter chain...
+//     // fs::read_dir(application_base_directory()).unwrap().filter(|p| p.unwrap().file_type().unwrap().is_dir())
+//     //                                                                ^^^^ cannot move out of borrowed content
+//     // caused by unwrap? http://qiita.com/tatsuya6502/items/10b4227beadf44f302fd
+//     for path in fs::read_dir(application_base_directory()).unwrap() {
+//         let unwraped_path = path.unwrap();
 
-        if unwraped_path.file_type().unwrap().is_dir() {
-            println!("  {}", unwraped_path.file_name().into_string().unwrap());
-        }
-    }
+//         if unwraped_path.file_type().unwrap().is_dir() {
+//             println!("  {}", unwraped_path.file_name().into_string().unwrap());
+//         }
+//     }
 
-    0
-}
+//     0
+// }
 
 /// project operation sub command base
 fn project_operation(args: &Args, operations: &Fn(&Args) -> ()) -> i32 {

@@ -7,6 +7,9 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 use std::ffi::OsStr;
+use domain::DockmasterCommand;
+
+mod domain;
 
 const USAGE: &'static str = "
 Dockmaster.
@@ -33,6 +36,8 @@ struct Args {
     cmd_standby: bool,
     cmd_terminate: bool,
 }
+
+impl DockmasterCommand for Args {}
 
 // TODO resource template -> https://github.com/Keats/tera
 // TODO implement dockmaster trait

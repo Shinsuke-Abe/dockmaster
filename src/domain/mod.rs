@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 
+// TODO const?
 fn application_base_directory() -> PathBuf {
     // TODO not default base directory -> environment value
     // TODO result http://osamu0329.hatenablog.jp/entry/2015/05/10/021234

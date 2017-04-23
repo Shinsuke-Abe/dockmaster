@@ -8,8 +8,13 @@ fn application_base_directory() -> PathBuf {
     env::home_dir().unwrap().join("dockermaster")
 }
 
+const SUB_DIRECTORIES:[&'static str; 4] = ["apps", "env", "data", "bin"];
+
 pub trait DockmasterCommand {
     fn arg_project_name(&self) -> String;
+
+    // TODO change Result<()> to return value for subcommand method
+    // because role for defining return code is main function(application layer)
 
     /// create <project> sub command
     fn create_project_base(&self) -> i32 {
@@ -23,7 +28,7 @@ pub trait DockmasterCommand {
             9
         } else {
             let _ = fs::create_dir_all(&mut base_dir);
-            for sub_dir in &["apps", "env", "data", "bin"] {
+            for sub_dir in &SUB_DIRECTORIES {
                 let _ = fs::create_dir_all(&mut base_dir.join(sub_dir));
             }
             0

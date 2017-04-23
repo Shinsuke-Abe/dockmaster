@@ -9,6 +9,27 @@ fn application_base_directory() -> PathBuf {
 }
 
 pub trait DockmasterCommand {
+    fn arg_project_name(&self) -> String;
+
+    /// create <project> sub command
+    fn create_project_base(&self) -> i32 {
+        println!("  createing {}", self.arg_project_name());
+
+        let mut base_dir = application_base_directory();
+        base_dir.push(self.arg_project_name()); // TODO join?
+
+        if base_dir.exists() {
+            println!("  project directory is already exists.");
+            9
+        } else {
+            let _ = fs::create_dir_all(&mut base_dir);
+            for sub_dir in &["apps", "env", "data", "bin"] {
+                let _ = fs::create_dir_all(&mut base_dir.join(sub_dir));
+            }
+            0
+        }
+    }
+
     /// ls sub command
     fn list_all_projects(&self) -> i32 {
         println!("  listing projects");

@@ -3,7 +3,6 @@ extern crate docopt;
 
 use docopt::Docopt;
 use std::env;
-use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 use std::ffi::OsStr;
@@ -37,7 +36,11 @@ struct Args {
     cmd_terminate: bool,
 }
 
-impl DockmasterCommand for Args {}
+impl DockmasterCommand for Args {
+    fn arg_project_name(&self) -> String {
+        self.arg_project_name.clone()
+    }
+}
 
 // TODO resource template -> https://github.com/Keats/tera
 // TODO implement dockmaster trait
@@ -51,7 +54,7 @@ fn main() {
 
     std::process::exit(
         if args.cmd_create {
-            create_project_base(args)
+            args.create_project_base()
         } else if args.cmd_ls {
             args.list_all_projects()
         } else if args.cmd_standby {
@@ -68,44 +71,6 @@ fn application_base_directory() -> PathBuf {
     // TODO result http://osamu0329.hatenablog.jp/entry/2015/05/10/021234
     env::home_dir().unwrap().join("dockermaster")
 }
-
-/// create <project> sub command
-fn create_project_base(args: Args) -> i32 {
-    println!("  createing {}", args.arg_project_name);
-
-    let mut base_dir = application_base_directory();
-    base_dir.push(args.arg_project_name);
-
-    if base_dir.exists() {
-        println!("  project directory is already exists.");
-        9
-    } else {
-        let _ = fs::create_dir_all(&mut base_dir);
-        for sub_dir in &["apps", "env", "data", "bin"] {
-            let _ = fs::create_dir_all(&mut base_dir.join(sub_dir));
-        }
-        0
-    }
-}
-
-// /// ls sub command
-// fn list_all_projects() -> i32 {
-//     println!("  listing projects");
-
-//     // TODO filter chain...
-//     // fs::read_dir(application_base_directory()).unwrap().filter(|p| p.unwrap().file_type().unwrap().is_dir())
-//     //                                                                ^^^^ cannot move out of borrowed content
-//     // caused by unwrap? http://qiita.com/tatsuya6502/items/10b4227beadf44f302fd
-//     for path in fs::read_dir(application_base_directory()).unwrap() {
-//         let unwraped_path = path.unwrap();
-
-//         if unwraped_path.file_type().unwrap().is_dir() {
-//             println!("  {}", unwraped_path.file_name().into_string().unwrap());
-//         }
-//     }
-
-//     0
-// }
 
 /// project operation sub command base
 fn project_operation(args: &Args, operations: &Fn(&Args) -> ()) -> i32 {

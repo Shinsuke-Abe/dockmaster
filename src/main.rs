@@ -49,18 +49,19 @@ fn main() {
         .unwrap_or_else(|e| e.exit());
     println!("{:?}", args);
 
-    std::process::exit(
-        if args.cmd_create {
-            args.create_project_base()
-        } else if args.cmd_ls {
-            args.list_all_projects()
-        } else if args.cmd_standby {
-            project_operation(&args, &standby_project)
-        } else if args.cmd_terminate {
-            project_operation(&args, &terminate_project)
-        } else {
-            0
-        });
+    std::process::exit(if args.cmd_create {
+                           args.create_project_base()
+                       } else if args.cmd_ls {
+        args.list_all_projects()
+    } else if args.cmd_standby {
+        standby_project(&args)
+        // project_operation(&args, &standby_project)
+    } else if args.cmd_terminate {
+        terminate_project(&args)
+        // project_operation(&args, &terminate_project)
+    } else {
+        0
+    });
 }
 
 fn application_base_directory() -> PathBuf {
@@ -69,33 +70,66 @@ fn application_base_directory() -> PathBuf {
     env::home_dir().unwrap().join("dockermaster")
 }
 
+// TODO to macro
+// ($operation:expr) => {}
 /// project operation sub command base
-fn project_operation(args: &Args, operations: &Fn(&Args) -> ()) -> i32 {
-    let project_dir = application_base_directory().join(&args.arg_project_name);
-    if project_dir.exists() {
-        operations(args);
-        0
-    } else {
-        println!("  project[{}] is not exists.", args.arg_project_name);
-        9
-    }
+macro_rules! project_operation {
+    ($func_name:ident; $operation:expr) => (
+        fn $func_name(args: &Args) -> i32{
+            let project_dir = application_base_directory().join(&args.arg_project_name);
+            if project_dir.exists() {
+                $operation(&args);
+                0
+            } else {
+                println!("  project[{}] is not exists.", args.arg_project_name);
+                9
+            }
+        }
+    )
 }
+// fn project_operation(args: &Args, operations: &Fn(&Args) -> ()) -> i32 {
+//     let project_dir = application_base_directory().join(&args.arg_project_name);
+//     if project_dir.exists() {
+//         operations(args);
+//         0
+//     } else {
+//         println!("  project[{}] is not exists.", args.arg_project_name);
+//         9
+//     }
+// }
 
 /// standby <project-name> sub command
-fn standby_project(args: &Args) {
+project_operation!(standby_project; |args: &Args| {
     let project_dir = application_base_directory().join(&args.arg_project_name);
     execute_docker_compose(args, &["up", "-d"]);
     println!("export environment variables: source {}/env/{}.env",
-             &project_dir.display(),
-             "default");
-}
+            &project_dir.display(),
+            "default");
+});
+// fn standby_project(args: &Args) -> i32 {
+//     project_operation!({
+//         let project_dir = application_base_directory().join(&args.arg_project_name);
+//         execute_docker_compose(args, &["up", "-d"]);
+//         println!("export environment variables: source {}/env/{}.env",
+//                 &project_dir.display(),
+//                 "default");
+//     })
+// }
 
 /// terminate <project-name> sub command
-fn terminate_project(args: &Args) {
+project_operation!(terminate_project; |args: &Args| {
     execute_docker_compose(args, &["stop"]);
-}
+});
+// fn terminate_project(args: &Args) -> i32 {
+//     project_operation!({
+//         execute_docker_compose(args, &["stop"]);
+//     })   
+// }
 
-fn execute_docker_compose<I, S>(args: &Args, commands: I) where I: IntoIterator<Item=S>, S: AsRef<OsStr> {
+fn execute_docker_compose<I, S>(args: &Args, commands: I)
+    where I: IntoIterator<Item = S>,
+          S: AsRef<OsStr>
+{
     let project_dir = application_base_directory().join(&args.arg_project_name);
     let output = Command::new("docker-compose")
         .env("COMPOSE_FILE",

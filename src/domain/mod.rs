@@ -39,16 +39,13 @@ pub trait DockmasterCommand {
     fn create_project_base(&self) -> i32 {
         println!("  createing {}", self.arg_project_name());
 
-        let mut base_dir = application_base_directory();
-        base_dir.push(self.arg_project_name()); // TODO join?
-
-        if base_dir.exists() {
+        if self.project_dir().exists() {
             println!("  project directory is already exists.");
             9
         } else {
-            let _ = fs::create_dir_all(&mut base_dir);
+            let _ = fs::create_dir_all(&mut self.project_dir());
             for sub_dir in &SUB_DIRECTORIES {
-                let _ = fs::create_dir_all(&mut base_dir.join(sub_dir));
+                let _ = fs::create_dir_all(&mut self.project_dir().join(sub_dir));
             }
             0
         }

@@ -38,6 +38,18 @@ impl DockmasterCommand for Args {
     }
 }
 
+macro_rules! result_handling {
+    ($op: expr) => (
+        match $op {
+            Ok(()) => 0,
+            Err(e) => {
+                println!("{}", e);
+                9
+            }
+        }
+    )
+}
+
 // TODO resource template -> https://github.com/Keats/tera
 fn main() {
     let args: Args = Docopt::new(USAGE)
@@ -47,9 +59,9 @@ fn main() {
 
     std::process::exit(
         if args.cmd_create {
-            args.create_project_base()
+            result_handling!(args.create_project_base())
         } else if args.cmd_ls {
-            args.list_all_projects()
+            result_handling!(args.list_all_projects())
         } else if args.cmd_standby {
             args.standby_project()
         } else if args.cmd_terminate {

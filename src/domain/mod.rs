@@ -36,23 +36,22 @@ pub trait DockmasterCommand {
     // because role for defining return code is main function(application layer)
 
     /// create <project> sub command
-    fn create_project_base(&self) -> i32 {
+    fn create_project_base(&self) -> Result<(), String> {
         println!("  createing {}", self.arg_project_name());
 
         if self.project_dir().exists() {
-            println!("  project directory is already exists.");
-            9
+            Err(String::from("  project directory is already exists."))
         } else {
             let _ = fs::create_dir_all(&mut self.project_dir());
             for sub_dir in &SUB_DIRECTORIES {
                 let _ = fs::create_dir_all(&mut self.project_dir().join(sub_dir));
             }
-            0
+            Ok(())
         }
     }
 
     /// ls sub command
-    fn list_all_projects(&self) -> i32 {
+    fn list_all_projects(&self) -> Result<(), String> {
         println!("  listing projects");
 
         // TODO filter chain...
@@ -67,7 +66,7 @@ pub trait DockmasterCommand {
             }
         }
 
-        0
+        Ok(())
     }
 
     /// standby <project-name> sub command

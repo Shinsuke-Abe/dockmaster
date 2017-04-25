@@ -2,10 +2,6 @@ extern crate rustc_serialize;
 extern crate docopt;
 
 use docopt::Docopt;
-use std::env;
-use std::path::PathBuf;
-use std::process::Command;
-use std::ffi::OsStr;
 use domain::DockmasterCommand;
 
 mod domain;
@@ -55,67 +51,11 @@ fn main() {
         } else if args.cmd_ls {
             args.list_all_projects()
         } else if args.cmd_standby {
-            standby_project(&args)
+            args.standby_project()
         } else if args.cmd_terminate {
-            terminate_project(&args)
+            args.terminate_project()
         } else {
             0
         }
     );
-}
-
-fn application_base_directory() -> PathBuf {
-    // TODO not default base directory -> environment value
-    // TODO result http://osamu0329.hatenablog.jp/entry/2015/05/10/021234
-    env::home_dir().unwrap().join("dockermaster")
-}
-
-/// project operation sub command base
-macro_rules! project_operation {
-    ($func_name:ident; $operation:expr) => (
-        fn $func_name(args: &Args) -> i32{
-            let project_dir = application_base_directory().join(&args.arg_project_name);
-            if project_dir.exists() {
-                $operation(&args);
-                0
-            } else {
-                println!("  project[{}] is not exists.", args.arg_project_name);
-                9
-            }
-        }
-    )
-}
-
-/// standby <project-name> sub command
-project_operation!(standby_project; |args: &Args| {
-    let project_dir = application_base_directory().join(&args.arg_project_name);
-    execute_docker_compose(args, &["up", "-d"]);
-    println!("export environment variables: source {}/env/{}.env",
-            &project_dir.display(),
-            "default");
-});
-
-/// terminate <project-name> sub command
-project_operation!(terminate_project; |args: &Args| {
-    execute_docker_compose(args, &["stop"]);
-});
-
-fn execute_docker_compose<I, S>(args: &Args, commands: I)
-    where I: IntoIterator<Item = S>,
-          S: AsRef<OsStr>
-{
-    let project_dir = application_base_directory().join(&args.arg_project_name);
-    let output = Command::new("docker-compose")
-        .env("COMPOSE_FILE",
-             &format!("{}/apps/docker-compose-{}.yml",
-                      &project_dir.display(),
-                      "default"))
-        .env("COMPOSE_PROJECT_NAME", &args.arg_project_name)
-        .args(commands)
-        .output()
-        .expect("failed to execute docker-compose");
-
-    println!("status: {}", output.status);
-    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-    println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
 }

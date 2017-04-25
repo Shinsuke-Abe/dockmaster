@@ -31,9 +31,6 @@ pub trait DockmasterCommand {
         application_base_directory().join(self.arg_project_name())
     }
 
-    // TODO change Result<()> to return value for subcommand method
-    // because role for defining return code is main function(application layer)
-
     /// create <project> sub command
     fn create_project_base(&self) -> Result<(), String> {
         println!("  createing {}", self.arg_project_name());

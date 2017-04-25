@@ -38,13 +38,16 @@ impl DockmasterCommand for Args {
     }
 }
 
+const SUCCESS: i32 = 0;
+const ERROR: i32 = 9;
+
 macro_rules! result_handling {
     ($op: expr) => (
         match $op {
-            Ok(()) => 0,
+            Ok(()) => std::process::exit(SUCCESS),
             Err(e) => {
                 println!("{}", e);
-                9
+                std::process::exit(ERROR)
             }
         }
     )
@@ -57,17 +60,15 @@ fn main() {
         .unwrap_or_else(|e| e.exit());
     println!("{:?}", args);
 
-    std::process::exit(
-        if args.cmd_create {
-            result_handling!(args.create_project_base())
-        } else if args.cmd_ls {
-            result_handling!(args.list_all_projects())
-        } else if args.cmd_standby {
-            result_handling!(args.standby_project())
-        } else if args.cmd_terminate {
-            result_handling!(args.terminate_project())
-        } else {
-            0
-        }
-    );
+    if args.cmd_create {
+        result_handling!(args.create_project_base())
+    } else if args.cmd_ls {
+        result_handling!(args.list_all_projects())
+    } else if args.cmd_standby {
+        result_handling!(args.standby_project())
+    } else if args.cmd_terminate {
+        result_handling!(args.terminate_project())
+    } else {
+        std::process::exit(ERROR)
+    }
 }

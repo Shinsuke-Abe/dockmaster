@@ -6,6 +6,12 @@ use domain::DockmasterCommand;
 
 mod domain;
 
+// TODO exec command
+//   set environment variable and execute command
+//   injections
+// TODO remove project
+// TODO execute application
+// TODO project settings
 const USAGE: &'static str = "
 Dockmaster.
 

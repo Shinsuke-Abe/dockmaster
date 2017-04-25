@@ -63,9 +63,9 @@ fn main() {
         } else if args.cmd_ls {
             result_handling!(args.list_all_projects())
         } else if args.cmd_standby {
-            args.standby_project()
+            result_handling!(args.standby_project())
         } else if args.cmd_terminate {
-            args.terminate_project()
+            result_handling!(args.terminate_project())
         } else {
             0
         }

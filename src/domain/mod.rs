@@ -18,10 +18,9 @@ macro_rules! project_operation {
     ($sel:ident; $operation:block) => (
         if $sel.project_dir().exists() {
             $operation;
-            0
+            Ok(())
         } else {
-            println!("  project[{}] is not exists.", $sel.arg_project_name());
-            9
+            Err(String::from(format!("  project[{}] is not exists.", $sel.arg_project_name())))
         }
     )
 }
@@ -70,7 +69,7 @@ pub trait DockmasterCommand {
     }
 
     /// standby <project-name> sub command
-    fn standby_project(&self) -> i32 {
+    fn standby_project(&self) -> Result<(), String> {
         project_operation!(self; {
             self.execute_docker_compose(&["up", "-d"]);
             println!("export environment variables: source {}/env/{}.env",
@@ -80,7 +79,7 @@ pub trait DockmasterCommand {
     }
 
     /// terminate <project-name> sub command
-    fn terminate_project(&self) -> i32 {
+    fn terminate_project(&self) -> Result<(), String> {
         project_operation!(self; {
             self.execute_docker_compose(&["stop"]);
         })

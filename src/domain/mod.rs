@@ -27,6 +27,7 @@ macro_rules! project_operation {
 
 pub trait DockmasterCommand {
     fn arg_project_name(&self) -> String;
+    fn env_name(&self) -> String;
     fn project_dir(&self) -> PathBuf {
         application_base_directory().join(self.arg_project_name())
     }

@@ -27,9 +27,19 @@ macro_rules! project_operation {
 
 pub trait DockmasterCommand {
     fn arg_project_name(&self) -> String;
+
     fn env_name(&self) -> String;
+
     fn project_dir(&self) -> PathBuf {
         application_base_directory().join(self.arg_project_name())
+    }
+
+    fn docker_compose_file_with_env(&self) -> PathBuf {
+        self.project_dir().join("apps").join(format!("docker-compose-{}.yml", self.env_name()))
+    }
+
+    fn environment_file_with_env(&self) -> PathBuf {
+        self.project_dir().join("env").join(format!("{}.env", self.env_name()))
     }
 
     /// create <project> sub command
@@ -66,9 +76,9 @@ pub trait DockmasterCommand {
     fn standby_project(&self) -> Result<(), String> {
         project_operation!(self; {
             self.execute_docker_compose(&["up", "-d"]);
-            println!("export environment variables: source {}/env/{}.env",
-                    self.project_dir().display(),
-                    "default");
+            println!(
+                "export environment variables: source {}",
+                self.environment_file_with_env().display());
         })
     }
 
@@ -84,10 +94,7 @@ pub trait DockmasterCommand {
             S: AsRef<OsStr>
     {
         let output = Command::new("docker-compose")
-            .env("COMPOSE_FILE",
-                &format!("{}/apps/docker-compose-{}.yml",
-                        self.project_dir().display(),
-                        "default"))
+            .env("COMPOSE_FILE", self.docker_compose_file_with_env().into_os_string())
             .env("COMPOSE_PROJECT_NAME", self.arg_project_name())
             .args(commands)
             .output()

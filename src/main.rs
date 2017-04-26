@@ -54,7 +54,7 @@ Options:
 #[derive(Debug, RustcDecodable)]
 struct Args {
     arg_project_name: String,
-    arg_env_name: String,
+    flag_env: String,
     cmd_create: bool,
     cmd_ls: bool,
     cmd_standby: bool,
@@ -67,7 +67,7 @@ impl DockmasterCommand for Args {
     }
 
     fn env_name(&self) -> String {
-        self.arg_env_name.clone()
+        self.flag_env.clone()
     }
 }
 

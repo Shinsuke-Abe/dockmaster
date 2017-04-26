@@ -6,12 +6,34 @@ use domain::DockmasterCommand;
 
 mod domain;
 
+// TODO standby named environment
+//   default process is
+//     1) exec docker-compose-{name}.yml
+//     2) print "source {name}.env"
+//     3) error handling on command execution or file not found
+// TODO customize environment standby process
+//   {name}.yml at project base directory
+//     1) override process flag
+//     2) process list
+//     3) replace environment variable
+// TODO named environment inherit other environment
+//   {name}.yml at project base directory
+//     1) inherit base environment name
+//     2) search {name}.yml
+//     3) if not named yml, execute default process
 // TODO exec command
-//   set environment variable and execute command
-//   injections
+//   set environment variable before execute command
+//   injections, specify project and environment.
 // TODO remove project
 // TODO execute application
 // TODO project settings
+// TODO check standby environment
+//   standing environment
+//     1) standby environment information file for .standing directory on application base
+//     2) when exec standby command, create environment information file
+//     3) when exec terminate command, delete environment information file
+// TODO ps command
+//   listing standing environment
 const USAGE: &'static str = "
 Dockmaster.
 

@@ -85,12 +85,13 @@ pub trait DockmasterCommand {
     fn standby_project(&self) -> Result<(), String> {
         project_operation!(self; {
             handling_command_error!(self.execute_docker_compose(&["up", "-d"]));
-            if !self.environment_file_with_env().exists() {
-                return Err(String::from("environment variable file is not found"))
+            if self.environment_file_with_env().exists() {
+                println!(
+                    "export environment variables: source {}",
+                    self.environment_file_with_env().display());
+            } else {
+                return Err(String::from("environment variable file is not found"));
             }
-            println!(
-                "export environment variables: source {}",
-                self.environment_file_with_env().display());
         })
     }
 

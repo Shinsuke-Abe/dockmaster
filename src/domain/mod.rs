@@ -27,9 +27,8 @@ macro_rules! project_operation {
 
 macro_rules! handling_command_error {
     ($command_execution:expr) => {
-        match $command_execution {
-            Err(e) => return Err(e),
-            _ => {}
+        if let Err(e) = $command_execution {
+            return Err(e);
         }
     }
 }
@@ -120,7 +119,6 @@ pub trait DockmasterCommand {
             Ok(())
         } else {
             Err(String::from("failed to execute docker-compose"))
-        }
-        
+        }  
     }
 }

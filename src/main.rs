@@ -6,11 +6,6 @@ use domain::DockmasterCommand;
 
 mod domain;
 
-// TODO standby named environment
-//   default process is
-//     1) exec docker-compose-{name}.yml
-//     2) print "source {name}.env"
-//     3) error handling on command execution or file not found
 // TODO customize environment standby process
 //   {name}.yml at project base directory
 //     1) override process flag

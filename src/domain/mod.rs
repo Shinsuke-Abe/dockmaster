@@ -76,6 +76,7 @@ pub trait DockmasterCommand {
     fn standby_project(&self) -> Result<(), String> {
         project_operation!(self; {
             self.execute_docker_compose(&["up", "-d"]);
+            // TODO handling 
             println!(
                 "export environment variables: source {}",
                 self.environment_file_with_env().display());
@@ -100,6 +101,7 @@ pub trait DockmasterCommand {
             .output()
             .expect("failed to execute docker-compose");
 
+        // TODO handling output status
         println!("status: {}", output.status);
         println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
         println!("stderr: {}", String::from_utf8_lossy(&output.stderr));

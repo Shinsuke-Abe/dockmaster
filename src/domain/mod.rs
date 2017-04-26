@@ -25,6 +25,15 @@ macro_rules! project_operation {
     )
 }
 
+macro_rules! handling_command_error {
+    ($command_execution:expr) => {
+        match $command_execution {
+            Err(e) => return Err(e),
+            _ => {}
+        }
+    }
+}
+
 pub trait DockmasterCommand {
     fn project_name(&self) -> String;
 
@@ -75,10 +84,7 @@ pub trait DockmasterCommand {
     /// standby <project-name> sub command
     fn standby_project(&self) -> Result<(), String> {
         project_operation!(self; {
-            match self.execute_docker_compose(&["up", "-d"]) {
-                Err(e) => return Err(e),
-                _ => {}
-            };
+            handling_command_error!(self.execute_docker_compose(&["up", "-d"]));
             if !self.environment_file_with_env().exists() {
                 return Err(String::from("environment variable file is not found"))
             }
@@ -91,10 +97,7 @@ pub trait DockmasterCommand {
     /// terminate <project-name> sub command
     fn terminate_project(&self) -> Result<(), String> {
         project_operation!(self; {
-            match self.execute_docker_compose(&["stop"]) {
-                Err(e) => return Err(e),
-                _ => {}
-            }
+            handling_command_error!(self.execute_docker_compose(&["stop"]))
         })
     }
 

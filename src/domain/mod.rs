@@ -75,8 +75,13 @@ pub trait DockmasterCommand {
     /// standby <project-name> sub command
     fn standby_project(&self) -> Result<(), String> {
         project_operation!(self; {
-            self.execute_docker_compose(&["up", "-d"]);
-            // TODO handling 
+            match self.execute_docker_compose(&["up", "-d"]) {
+                Err(e) => return Err(e),
+                _ => {}
+            };
+            if !self.environment_file_with_env().exists() {
+                return Err(String::from("environment variable file is not found"))
+            }
             println!(
                 "export environment variables: source {}",
                 self.environment_file_with_env().display());
@@ -86,11 +91,14 @@ pub trait DockmasterCommand {
     /// terminate <project-name> sub command
     fn terminate_project(&self) -> Result<(), String> {
         project_operation!(self; {
-            self.execute_docker_compose(&["stop"]);
+            match self.execute_docker_compose(&["stop"]) {
+                Err(e) => return Err(e),
+                _ => {}
+            }
         })
     }
 
-    fn execute_docker_compose<I, S>(&self, commands: I)
+    fn execute_docker_compose<I, S>(&self, commands: I) -> Result<(), String>
         where I: IntoIterator<Item = S>,
             S: AsRef<OsStr>
     {
@@ -101,9 +109,14 @@ pub trait DockmasterCommand {
             .output()
             .expect("failed to execute docker-compose");
 
-        // TODO handling output status
-        println!("status: {}", output.status);
         println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
         println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+
+        if output.status.success() {
+            Ok(())
+        } else {
+            Err(String::from("failed to execute docker-compose"))
+        }
+        
     }
 }

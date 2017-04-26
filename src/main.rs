@@ -62,7 +62,7 @@ struct Args {
 }
 
 impl DockmasterCommand for Args {
-    fn arg_project_name(&self) -> String {
+    fn project_name(&self) -> String {
         self.arg_project_name.clone()
     }
 

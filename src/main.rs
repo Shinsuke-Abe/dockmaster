@@ -6,11 +6,6 @@ use domain::DockmasterCommand;
 
 mod domain;
 
-// TODO standby named environment
-//   default process is
-//     1) exec docker-compose-{name}.yml
-//     2) print "source {name}.env"
-//     3) error handling on command execution or file not found
 // TODO customize environment standby process
 //   {name}.yml at project base directory
 //     1) override process flag
@@ -54,6 +49,7 @@ Options:
 #[derive(Debug, RustcDecodable)]
 struct Args {
     arg_project_name: String,
+    flag_env: String,
     cmd_create: bool,
     cmd_ls: bool,
     cmd_standby: bool,
@@ -61,8 +57,12 @@ struct Args {
 }
 
 impl DockmasterCommand for Args {
-    fn arg_project_name(&self) -> String {
+    fn project_name(&self) -> String {
         self.arg_project_name.clone()
+    }
+
+    fn env_name(&self) -> String {
+        self.flag_env.clone()
     }
 }
 

@@ -20,20 +20,39 @@ macro_rules! project_operation {
             $operation;
             Ok(())
         } else {
-            Err(String::from(format!("  project[{}] is not exists.", $sel.arg_project_name())))
+            Err(String::from(format!("  project[{}] is not exists.", $sel.project_name())))
         }
     )
 }
 
+macro_rules! handling_command_error {
+    ($command_execution:expr) => {
+        if let Err(e) = $command_execution {
+            return Err(e);
+        }
+    }
+}
+
 pub trait DockmasterCommand {
-    fn arg_project_name(&self) -> String;
+    fn project_name(&self) -> String;
+
+    fn env_name(&self) -> String;
+
     fn project_dir(&self) -> PathBuf {
-        application_base_directory().join(self.arg_project_name())
+        application_base_directory().join(self.project_name())
+    }
+
+    fn docker_compose_file_with_env(&self) -> PathBuf {
+        self.project_dir().join("apps").join(format!("docker-compose-{}.yml", self.env_name()))
+    }
+
+    fn environment_file_with_env(&self) -> PathBuf {
+        self.project_dir().join("env").join(format!("{}.env", self.env_name()))
     }
 
     /// create <project> sub command
     fn create_project_base(&self) -> Result<(), String> {
-        println!("  createing {}", self.arg_project_name());
+        println!("  createing {}", self.project_name());
 
         if self.project_dir().exists() {
             Err(String::from("  project directory is already exists."))
@@ -64,36 +83,42 @@ pub trait DockmasterCommand {
     /// standby <project-name> sub command
     fn standby_project(&self) -> Result<(), String> {
         project_operation!(self; {
-            self.execute_docker_compose(&["up", "-d"]);
-            println!("export environment variables: source {}/env/{}.env",
-                    self.project_dir().display(),
-                    "default");
+            handling_command_error!(self.execute_docker_compose(&["up", "-d"]));
+            if self.environment_file_with_env().exists() {
+                println!(
+                    "export environment variables: source {}",
+                    self.environment_file_with_env().display());
+            } else {
+                return Err(String::from("environment variable file is not found"));
+            }
         })
     }
 
     /// terminate <project-name> sub command
     fn terminate_project(&self) -> Result<(), String> {
         project_operation!(self; {
-            self.execute_docker_compose(&["stop"]);
+            handling_command_error!(self.execute_docker_compose(&["stop"]))
         })
     }
 
-    fn execute_docker_compose<I, S>(&self, commands: I)
+    fn execute_docker_compose<I, S>(&self, commands: I) -> Result<(), String>
         where I: IntoIterator<Item = S>,
             S: AsRef<OsStr>
     {
         let output = Command::new("docker-compose")
-            .env("COMPOSE_FILE",
-                &format!("{}/apps/docker-compose-{}.yml",
-                        self.project_dir().display(),
-                        "default"))
-            .env("COMPOSE_PROJECT_NAME", self.arg_project_name())
+            .env("COMPOSE_FILE", self.docker_compose_file_with_env().into_os_string())
+            .env("COMPOSE_PROJECT_NAME", self.project_name())
             .args(commands)
             .output()
             .expect("failed to execute docker-compose");
 
-        println!("status: {}", output.status);
         println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
         println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+
+        if output.status.success() {
+            Ok(())
+        } else {
+            Err(String::from("failed to execute docker-compose"))
+        }  
     }
 }

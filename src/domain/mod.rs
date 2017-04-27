@@ -82,6 +82,7 @@ pub trait DockmasterCommand {
 
     /// standby <project-name> sub command
     fn standby_project(&self) -> Result<(), String> {
+        // TODO if {named-environment}.yml (inheritance)
         project_operation!(self; {
             handling_command_error!(self.execute_docker_compose(&["up", "-d"]));
             if self.environment_file_with_env().exists() {
@@ -96,6 +97,7 @@ pub trait DockmasterCommand {
 
     /// terminate <project-name> sub command
     fn terminate_project(&self) -> Result<(), String> {
+        // TODO if {named-environment}.yml (inheritance)
         project_operation!(self; {
             handling_command_error!(self.execute_docker_compose(&["stop"]))
         })

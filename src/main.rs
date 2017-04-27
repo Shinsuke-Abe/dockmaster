@@ -10,6 +10,7 @@ mod domain;
 
 // TODO named environment inherit other environment on default process
 //   https://github.com/dnsl48/yamlette
+//   http://qiita.com/tatsuya6502/items/bed3702517b36afbdbca
 //   {name}.yml at project base directory
 //     1) inherit base environment name
 //     1)-1 {name}.yml

@@ -38,16 +38,25 @@ pub trait DockmasterCommand {
 
     fn env_name(&self) -> String;
 
+    fn actual_env_name(&self) -> String {
+        if self.project_dir().join(format!("{}.yml", self.env_name())).exists() {
+            // TODO get from yml
+            String::from("default")
+        } else {
+            self.env_name()
+        }
+    }
+
     fn project_dir(&self) -> PathBuf {
         application_base_directory().join(self.project_name())
     }
 
     fn docker_compose_file_with_env(&self) -> PathBuf {
-        self.project_dir().join("apps").join(format!("docker-compose-{}.yml", self.env_name()))
+        self.project_dir().join("apps").join(format!("docker-compose-{}.yml", self.actual_env_name()))
     }
 
     fn environment_file_with_env(&self) -> PathBuf {
-        self.project_dir().join("env").join(format!("{}.env", self.env_name()))
+        self.project_dir().join("env").join(format!("{}.env", self.actual_env_name()))
     }
 
     /// create <project> sub command
@@ -82,13 +91,13 @@ pub trait DockmasterCommand {
 
     /// standby <project-name> sub command
     fn standby_project(&self) -> Result<(), String> {
-        // TODO if {named-environment}.yml (inheritance)
         project_operation!(self; {
             handling_command_error!(self.execute_docker_compose(&["up", "-d"]));
-            if self.environment_file_with_env().exists() {
+            let env_file = self.environment_file_with_env();
+            if env_file.exists() {
                 println!(
                     "export environment variables: source {}",
-                    self.environment_file_with_env().display());
+                    env_file.display());
             } else {
                 return Err(String::from("environment variable file is not found"));
             }
@@ -97,7 +106,6 @@ pub trait DockmasterCommand {
 
     /// terminate <project-name> sub command
     fn terminate_project(&self) -> Result<(), String> {
-        // TODO if {named-environment}.yml (inheritance)
         project_operation!(self; {
             handling_command_error!(self.execute_docker_compose(&["stop"]))
         })

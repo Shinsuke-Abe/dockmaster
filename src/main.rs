@@ -47,7 +47,7 @@ Usage:
     dockmaster create <project-name>
     dockmaster ls
     dockmaster standby <project-name> [--env=<env-name>] 
-    dockmaster terminate <project-name>
+    dockmaster terminate <project-name> [--env=<env-name>]
     dockmaster (-h | --help)
     dockmaster --version
 

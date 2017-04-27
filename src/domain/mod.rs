@@ -69,6 +69,16 @@ macro_rules! handling_command_error {
     }
 }
 
+macro_rules! decide_env_name {
+    ($sel:ident; $process_setting:expr; $parent_name:expr) => {
+        if $process_setting == "parent" {
+            $parent_name
+        } else {
+            $sel.env_name()
+        }
+    }
+}
+
 pub trait DockmasterCommand {
     fn project_name(&self) -> String;
 
@@ -80,12 +90,8 @@ pub trait DockmasterCommand {
             let settings = load_environment_settings(settings_path);
             
             match process {
-                ProcessOnDefault::Compose => {
-                    if settings.process_compose == "parent" {
-                        settings.parent
-                    } else {
-                        self.env_name()
-                    }},
+                ProcessOnDefault::Compose =>
+                    decide_env_name!(self; settings.process_compose; settings.parent),
                 ProcessOnDefault::Env => {
                     if settings.process_env == "parent" {
                         settings.parent

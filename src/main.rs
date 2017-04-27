@@ -7,6 +7,7 @@ use domain::DockmasterCommand;
 mod domain;
 
 // TODO named environment inherit other environment on default process
+//   https://github.com/dnsl48/yamlette
 //   {name}.yml at project base directory
 //     1) inherit base environment name
 //     1)-1 {name}.yml

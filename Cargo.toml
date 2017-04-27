@@ -6,3 +6,4 @@ authors = ["Shinsuke-Abe <mao.instantlife@gmail.com>"]
 [dependencies]
 docopt = "0.7"
 rustc-serialize = "0.3"
+yamlette = "0.0.3"

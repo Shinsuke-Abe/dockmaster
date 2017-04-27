@@ -92,12 +92,8 @@ pub trait DockmasterCommand {
             match process {
                 ProcessOnDefault::Compose =>
                     decide_env_name!(self; settings.process_compose; settings.parent),
-                ProcessOnDefault::Env => {
-                    if settings.process_env == "parent" {
-                        settings.parent
-                    } else {
-                        self.env_name()
-                    }}
+                ProcessOnDefault::Env => 
+                    decide_env_name!(self; settings.process_env; settings.parent)
             }
         } else {
             self.env_name()

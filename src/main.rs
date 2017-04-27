@@ -8,19 +8,6 @@ use domain::DockmasterCommand;
 
 mod domain;
 
-// TODO named environment inherit other environment on default process
-//   https://github.com/dnsl48/yamlette
-//   http://qiita.com/tatsuya6502/items/bed3702517b36afbdbca
-//   {name}.yml at project base directory
-//     1) inherit base environment name
-//     1)-1 {name}.yml
-//     1)-2 parent: {parent_name}
-//     1)-3 process:
-//     1)-4   default: true|false
-//     1)-4   compose: parent|this
-//     1)-5   env: parent|this
-//     2) search {name}.yml
-//     3) if not named yml, execute default process
 // TODO customize environment standby process
 //   {name}.yml at project base directory
 //     1) override process flag

@@ -44,7 +44,7 @@ fn load_environment_settings(settings_path: PathBuf) -> EnvironmentSettings {
 }
 
 #[derive(Debug)]
-enum ProcessOnDefault {
+pub enum ProcessOnDefault {
     Compose,
     Env,
 }

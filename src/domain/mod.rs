@@ -3,6 +3,8 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 use std::ffi::OsStr;
+use std::fs::File;
+use std::io::BufReader;
 
 // TODO const?
 fn application_base_directory() -> PathBuf {
@@ -12,6 +14,40 @@ fn application_base_directory() -> PathBuf {
 }
 
 const SUB_DIRECTORIES:[&'static str; 4] = ["apps", "env", "data", "bin"];
+
+struct EnvironmentSettings {
+    parent: String,
+    process_default: bool,
+    process_compose: String,
+    process_env: String,
+}
+
+fn load_environment_settings(settings_path: PathBuf) -> EnvironmentSettings {
+    let file = File::open(settings_path).unwrap();
+    let buf_reader = BufReader::new(file);
+    yamlette!(read ; buf_reader ; [[
+        {
+            "parent" => (parent: String),
+            "process" => {
+                "default" => (process_default: bool),
+                "compose" => (process_compose: String),
+                "env" => (process_env: String)
+            }
+        }
+    ]]);
+
+    EnvironmentSettings{
+        parent: parent.unwrap_or(String::from("default")),
+        process_default: process_default.unwrap_or(true),
+        process_compose: process_compose.unwrap_or(String::from("this")),
+        process_env: process_env.unwrap_or(String::from("this"))}
+}
+
+#[derive(Debug)]
+enum ProcessOnDefault {
+    Compose,
+    Env,
+}
 
 /// project operation sub command base
 macro_rules! project_operation {
@@ -38,10 +74,25 @@ pub trait DockmasterCommand {
 
     fn env_name(&self) -> String;
 
-    fn actual_env_name(&self) -> String {
-        if self.project_dir().join(format!("{}.yml", self.env_name())).exists() {
-            // TODO get from yml
-            String::from("default")
+    fn actual_env_name(&self, process: ProcessOnDefault) -> String {
+        let settings_path = self.project_dir().join(format!("{}.yml", self.env_name()));
+        if settings_path.exists() {
+            let settings = load_environment_settings(settings_path);
+            
+            match process {
+                ProcessOnDefault::Compose => {
+                    if settings.process_compose == "parent" {
+                        settings.parent
+                    } else {
+                        self.env_name()
+                    }},
+                ProcessOnDefault::Env => {
+                    if settings.process_env == "parent" {
+                        settings.parent
+                    } else {
+                        self.env_name()
+                    }}
+            }
         } else {
             self.env_name()
         }
@@ -52,11 +103,11 @@ pub trait DockmasterCommand {
     }
 
     fn docker_compose_file_with_env(&self) -> PathBuf {
-        self.project_dir().join("apps").join(format!("docker-compose-{}.yml", self.actual_env_name()))
+        self.project_dir().join("apps").join(format!("docker-compose-{}.yml", self.actual_env_name(ProcessOnDefault::Compose)))
     }
 
     fn environment_file_with_env(&self) -> PathBuf {
-        self.project_dir().join("env").join(format!("{}.env", self.actual_env_name()))
+        self.project_dir().join("env").join(format!("{}.env", self.actual_env_name(ProcessOnDefault::Env)))
     }
 
     /// create <project> sub command

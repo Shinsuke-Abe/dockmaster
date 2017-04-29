@@ -1,4 +1,3 @@
-use std::env;
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
@@ -6,12 +5,7 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::io::BufReader;
 
-// TODO const?
-fn application_base_directory() -> PathBuf {
-    // TODO not default base directory -> environment value
-    // TODO result http://osamu0329.hatenablog.jp/entry/2015/05/10/021234
-    env::home_dir().unwrap().join("dockermaster")
-}
+pub mod dirs;
 
 const SUB_DIRECTORIES:[&'static str; 4] = ["apps", "env", "data", "bin"];
 
@@ -101,7 +95,7 @@ pub trait DockmasterCommand {
     }
 
     fn project_dir(&self) -> PathBuf {
-        application_base_directory().join(self.project_name())
+        dirs::application_base().join(self.project_name())
     }
 
     fn docker_compose_file_with_env(&self) -> PathBuf {
@@ -131,7 +125,7 @@ pub trait DockmasterCommand {
     fn list_all_projects(&self) -> Result<(), String> {
         println!("  listing projects");
 
-        for path in fs::read_dir(application_base_directory()).unwrap() {
+        for path in fs::read_dir(dirs::application_base()).unwrap() {
             let unwraped_path = path.unwrap();
 
             if unwraped_path.file_type().unwrap().is_dir() {

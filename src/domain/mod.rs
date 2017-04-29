@@ -46,7 +46,7 @@ pub enum ProcessOnDefault {
 /// project operation sub command base
 macro_rules! project_operation {
     ($sel:ident; $operation:block) => (
-        if $sel.project_dir().exists() {
+        if dirs::Project::named($sel.project_name()).base().exists() {
             $operation;
             Ok(())
         } else {
@@ -79,7 +79,7 @@ pub trait DockmasterCommand {
     fn env_name(&self) -> String;
 
     fn actual_env_name(&self, process: ProcessOnDefault) -> String {
-        let settings_path = self.project_dir().join(format!("{}.yml", self.env_name()));
+        let settings_path = dirs::Project::named(self.project_name()).base().join(format!("{}.yml", self.env_name()));
         if settings_path.exists() {
             let settings = load_environment_settings(settings_path);
             
@@ -94,28 +94,25 @@ pub trait DockmasterCommand {
         }
     }
 
-    fn project_dir(&self) -> PathBuf {
-        dirs::application_base().join(self.project_name())
-    }
-
     fn docker_compose_file_with_env(&self) -> PathBuf {
-        self.project_dir().join("apps").join(format!("docker-compose-{}.yml", self.actual_env_name(ProcessOnDefault::Compose)))
+        dirs::Project::named(self.project_name()).apps().join(format!("docker-compose-{}.yml", self.actual_env_name(ProcessOnDefault::Compose)))
     }
 
     fn environment_file_with_env(&self) -> PathBuf {
-        self.project_dir().join("env").join(format!("{}.env", self.actual_env_name(ProcessOnDefault::Env)))
+        dirs::Project::named(self.project_name()).env().join(format!("{}.env", self.actual_env_name(ProcessOnDefault::Env)))
     }
 
     /// create <project> sub command
     fn create_project_base(&self) -> Result<(), String> {
         println!("  createing {}", self.project_name());
 
-        if self.project_dir().exists() {
+        let project_dir = dirs::Project::named(self.project_name()).base();
+        if project_dir.exists() {
             Err(String::from("  project directory is already exists."))
         } else {
-            let _ = fs::create_dir_all(&mut self.project_dir());
+            let _ = fs::create_dir_all(&project_dir);
             for sub_dir in &SUB_DIRECTORIES {
-                let _ = fs::create_dir_all(&mut self.project_dir().join(sub_dir));
+                let _ = fs::create_dir_all(&project_dir.join(sub_dir));
             }
             Ok(())
         }

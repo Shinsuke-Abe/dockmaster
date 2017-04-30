@@ -29,4 +29,16 @@ impl Project {
     pub fn env(&self) -> PathBuf {
         self.base().join("env")
     }
+
+    fn data(&self) -> PathBuf {
+        self.base().join("data")
+    }
+
+    fn bin(&self) -> PathBuf {
+        self.base().join("bin")
+    }
+
+    pub fn to_subdir_arr(&self) -> [PathBuf; 4] {
+        [self.apps(), self.env(), self.data(), self.bin()]
+    }
 }

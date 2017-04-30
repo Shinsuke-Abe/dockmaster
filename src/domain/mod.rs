@@ -7,8 +7,6 @@ use std::io::BufReader;
 
 pub mod dirs;
 
-const SUB_DIRECTORIES:[&'static str; 4] = ["apps", "env", "data", "bin"];
-
 struct EnvironmentSettings {
     parent: String,
     process_default: bool,
@@ -110,9 +108,8 @@ pub trait DockmasterCommand {
         if project_dir.exists() {
             Err(String::from("  project directory is already exists."))
         } else {
-            let _ = fs::create_dir_all(&project_dir);
-            for sub_dir in &SUB_DIRECTORIES {
-                let _ = fs::create_dir_all(&project_dir.join(sub_dir));
+            for sub_dir in &dirs::Project::named(self.project_name()).to_subdir_arr() {
+                let _ = fs::create_dir_all(&sub_dir);
             }
             Ok(())
         }

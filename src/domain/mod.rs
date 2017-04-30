@@ -104,8 +104,7 @@ pub trait DockmasterCommand {
     fn create_project_base(&self) -> Result<(), String> {
         println!("  createing {}", self.project_name());
 
-        let project_dir = dirs::Project::named(self.project_name()).base();
-        if project_dir.exists() {
+        if dirs::Project::named(self.project_name()).base().exists() {
             Err(String::from("  project directory is already exists."))
         } else {
             for sub_dir in &dirs::Project::named(self.project_name()).to_subdir_arr() {

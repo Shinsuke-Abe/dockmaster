@@ -8,17 +8,20 @@ use domain::DockmasterCommand;
 
 mod domain;
 
+// TODO execute application
+//   default => gradle + Spring Boot
+//   set environment variable before execute application
+// TODO exec command
+//   set environment variable before execute command
+//   injections, specify project and environment.
 // TODO customize environment standby process
 //   {name}.yml at project base directory
 //     1) override process flag
 //     2) process list
 //     3) replace environment variable
+// TODO customize executing application
 // TODO named environment inherit other environment on customized process
-// TODO exec command
-//   set environment variable before execute command
-//   injections, specify project and environment.
 // TODO remove project
-// TODO execute application
 // TODO project settings
 // TODO check standby environment
 //   standing environment

@@ -1,26 +1,27 @@
 extern crate rustc_serialize;
 extern crate docopt;
+#[macro_use]
+extern crate yamlette;
 
 use docopt::Docopt;
 use domain::DockmasterCommand;
 
 mod domain;
 
+// TODO execute application
+//   default => gradle + Spring Boot
+//   set environment variable before execute application
+// TODO exec command
+//   set environment variable before execute command
+//   injections, specify project and environment.
 // TODO customize environment standby process
 //   {name}.yml at project base directory
 //     1) override process flag
 //     2) process list
 //     3) replace environment variable
-// TODO named environment inherit other environment
-//   {name}.yml at project base directory
-//     1) inherit base environment name
-//     2) search {name}.yml
-//     3) if not named yml, execute default process
-// TODO exec command
-//   set environment variable before execute command
-//   injections, specify project and environment.
+// TODO customize executing application
+// TODO named environment inherit other environment on customized process
 // TODO remove project
-// TODO execute application
 // TODO project settings
 // TODO check standby environment
 //   standing environment
@@ -36,7 +37,7 @@ Usage:
     dockmaster create <project-name>
     dockmaster ls
     dockmaster standby <project-name> [--env=<env-name>] 
-    dockmaster terminate <project-name>
+    dockmaster terminate <project-name> [--env=<env-name>]
     dockmaster (-h | --help)
     dockmaster --version
 

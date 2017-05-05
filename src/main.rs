@@ -55,9 +55,12 @@ Options:
 struct Args {
     arg_project_name: String,
     flag_env: String,
+    flag_tasks: String, 
     cmd_create: bool,
     cmd_ls: bool,
     cmd_standby: bool,
+    cmd_run: bool,
+    cmd_product: bool,
     cmd_terminate: bool,
 }
 

@@ -11,8 +11,8 @@ mod domain;
 // TODO execute product under developing
 //   default => gradle + Spring Boot
 //   set environment variable before execute application
-// TODO execute product(customizing process)
 // TODO connect product directory for project
+// TODO execute product(customizing process)
 // TODO exec command
 //   set environment variable before execute command
 //   injections, specify project and environment.

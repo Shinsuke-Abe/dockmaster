@@ -102,6 +102,8 @@ fn main() {
         result_handling!(args.list_all_projects())
     } else if args.cmd_standby {
         result_handling!(args.standby_project())
+    } else if args.cmd_run & args.cmd_product {
+        println!("run product!, task={}", args.flag_tasks)
     } else if args.cmd_terminate {
         result_handling!(args.terminate_project())
     } else {

@@ -8,9 +8,11 @@ use domain::DockmasterCommand;
 
 mod domain;
 
-// TODO execute application
+// TODO execute product under developing
 //   default => gradle + Spring Boot
 //   set environment variable before execute application
+// TODO execute product(customizing process)
+// TODO connect product directory for project
 // TODO exec command
 //   set environment variable before execute command
 //   injections, specify project and environment.
@@ -37,14 +39,17 @@ Usage:
     dockmaster create <project-name>
     dockmaster ls
     dockmaster standby <project-name> [--env=<env-name>] 
+    dockmaster run product [--sub-project=<sub-project-name>] [--tasks=<execute-task>]
     dockmaster terminate <project-name> [--env=<env-name>]
     dockmaster (-h | --help)
     dockmaster --version
 
 Options:
-    -h --help           Show this screen.
-    --version           Show version.
-    --env=<env-name>    Environment name for stand-by project [default: default].
+    -h --help                         Show this screen.
+    --version                         Show version.
+    --env=<env-name>                  Environment name for stand-by project [default: default].
+    --sub-project=<sub-project-name>  Sub project name for gradle on product under developing [default: none].
+    --tasks=<execute-task>            Task name for gradle on product under developing [default: bootRun].
 ";
 
 #[derive(Debug, RustcDecodable)]

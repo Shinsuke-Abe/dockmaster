@@ -39,7 +39,7 @@ Usage:
     dockmaster create <project-name>
     dockmaster ls
     dockmaster standby <project-name> [--env=<env-name>] 
-    dockmaster run product [--sub-project=<sub-project-name>] [--tasks=<execute-task>]
+    dockmaster run product [--tasks=<execute-task>]
     dockmaster terminate <project-name> [--env=<env-name>]
     dockmaster (-h | --help)
     dockmaster --version
@@ -48,8 +48,7 @@ Options:
     -h --help                         Show this screen.
     --version                         Show version.
     --env=<env-name>                  Environment name for stand-by project [default: default].
-    --sub-project=<sub-project-name>  Sub project name for gradle on product under developing [default: none].
-    --tasks=<execute-task>            Task name for gradle on product under developing [default: bootRun].
+    --tasks=<execute-task>            Task name for gradle on product under developing [default: run].
 ";
 
 #[derive(Debug, RustcDecodable)]

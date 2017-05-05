@@ -45,10 +45,10 @@ Usage:
     dockmaster --version
 
 Options:
-    -h --help                         Show this screen.
-    --version                         Show version.
-    --env=<env-name>                  Environment name for stand-by project [default: default].
-    --tasks=<execute-task>            Task name for gradle on product under developing [default: run].
+    -h --help               Show this screen.
+    --version               Show version.
+    --env=<env-name>        Environment name for stand-by project [default: default].
+    --tasks=<execute-task>  Task name for gradle on product under developing [default: run].
 ";
 
 #[derive(Debug, RustcDecodable)]

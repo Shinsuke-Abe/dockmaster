@@ -71,6 +71,7 @@ macro_rules! decide_env_name {
     }
 }
 
+// TODO create command builder and template method
 pub trait DockmasterCommand {
     fn project_name(&self) -> String;
 

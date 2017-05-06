@@ -76,6 +76,8 @@ pub trait DockmasterCommand {
 
     fn env_name(&self) -> String;
 
+    fn task_name(&self) -> String;
+
     fn actual_env_name(&self, process: ProcessOnDefault) -> String {
         let settings_path = dirs::Project::named(self.project_name()).base().join(format!("{}.yml", self.env_name()));
         if settings_path.exists() {
@@ -141,6 +143,13 @@ pub trait DockmasterCommand {
             } else {
                 return Err(String::from("environment variable file is not found"));
             }
+        })
+    }
+
+    /// run product sub command
+    fn run_product(&self) -> Result<(), String> {
+        project_operation!(self; {
+            println!("run product!, task={}", self.task_name());
         })
     }
 

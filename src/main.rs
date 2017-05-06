@@ -72,6 +72,10 @@ impl DockmasterCommand for Args {
     fn env_name(&self) -> String {
         self.flag_env.clone()
     }
+
+    fn task_name(&self) -> String {
+        self.flag_tasks.clone()
+    }
 }
 
 const SUCCESS: i32 = 0;
@@ -103,7 +107,7 @@ fn main() {
     } else if args.cmd_standby {
         result_handling!(args.standby_project())
     } else if args.cmd_run & args.cmd_product {
-        println!("run product!, task={}", args.flag_tasks)
+        result_handling!(args.run_product())
     } else if args.cmd_terminate {
         result_handling!(args.terminate_project())
     } else {

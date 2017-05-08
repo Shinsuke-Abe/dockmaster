@@ -35,6 +35,22 @@ fn load_environment_settings(settings_path: PathBuf) -> EnvironmentSettings {
         process_env: process_env.unwrap_or(String::from("this"))}
 }
 
+fn load_product_settings(settings_path: PathBuf) -> Result<PathBuf, String> {
+    let file = File::open(settings_path).unwrap();
+    let buf_reader = BufReader::new(file);
+    yamlette!(read ; buf_reader ; [[
+        {
+            "execution_base" => (execution_base: String)
+        }
+    ]]);
+
+    match execution_base {
+        Some(execution_base) => Ok(PathBuf::from(execution_base)),
+        None => Err(String::from("execution base setting is nothing!"))
+    }
+    
+}
+
 #[derive(Debug)]
 pub enum ProcessOnDefault {
     Compose,
@@ -150,7 +166,10 @@ pub trait DockmasterCommand {
     /// run product sub command
     fn run_product(&self) -> Result<(), String> {
         project_operation!(self; {
-            println!("run product!, task={}", self.task_name());
+            match load_product_settings(dirs::Project::named(self.project_name()).base().join("product_settings.yml")) {
+                Ok(path) => println!("run product!, task={} withPath={}", self.task_name(), path.display()),
+                Err(e) => return Err(e)
+            }
         })
     }
 

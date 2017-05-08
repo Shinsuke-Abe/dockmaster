@@ -32,6 +32,7 @@ mod domain;
 //     3) when exec terminate command, delete environment information file
 // TODO ps command
 //   listing standing environment
+// TODO listing images and port for all project
 const USAGE: &'static str = "
 Dockmaster.
 

@@ -32,7 +32,8 @@ mod domain;
 //     3) when exec terminate command, delete environment information file
 // TODO ps command
 //   listing standing environment
-// TODO listing images and port for all project
+// TODO listing images and using port for all project
+//   from docker-compose.yml
 const USAGE: &'static str = "
 Dockmaster.
 

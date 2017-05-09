@@ -4,6 +4,7 @@ use std::process::Command;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::BufReader;
+use std::io::BufRead;
 
 pub mod dirs;
 
@@ -179,6 +180,14 @@ pub trait DockmasterCommand {
                 match load_product_settings(settings_path) {
                     Some(execution_base_path) => {
                         // TODO load environment variable with env
+                        let env_file_path = self.environment_file_with_env();
+                        if env_file_path.exists() {
+                            let mut env_file_lines = BufReader::new(File::open(env_file_path).unwrap()).lines();
+                            while let Some(line) = env_file_lines.next() {
+                                println!("{}", line.unwrap());
+                            }
+                        }
+
                         // TODO execute command
                         println!("run product!, task={} withPath={} env={}", self.task_name(), execution_base_path.display(), self.env_name())
                     },

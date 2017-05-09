@@ -186,6 +186,7 @@ pub trait DockmasterCommand {
                                 .map(|line| line.unwrap())
                                 .filter(|line| line.starts_with("export"))
                                 .map(|line| line.replace("export", "").trim().to_string());
+                                //https://doc.rust-lang.org/std/process/struct.Command.html#method.envs
                             
                             while let Some(line) = env_file_lines.next() {
                                 println!("{}", line);

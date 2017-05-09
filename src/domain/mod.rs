@@ -35,7 +35,7 @@ fn load_environment_settings(settings_path: PathBuf) -> EnvironmentSettings {
         process_env: process_env.unwrap_or(String::from("this"))}
 }
 
-fn load_product_settings(settings_path: PathBuf) -> Result<PathBuf, String> {
+fn load_product_settings(settings_path: PathBuf) -> Option<PathBuf> {
     let file = File::open(settings_path).unwrap();
     let buf_reader = BufReader::new(file);
     yamlette!(read ; buf_reader ; [[
@@ -45,10 +45,17 @@ fn load_product_settings(settings_path: PathBuf) -> Result<PathBuf, String> {
     ]]);
 
     match execution_base {
-        Some(execution_base) => Ok(PathBuf::from(execution_base)),
-        None => Err(String::from("execution base setting is nothing!"))
+        Some(execution_base) => {
+            let execution_base_path = PathBuf::from(execution_base);
+
+            if execution_base_path.exists() {
+                Some(execution_base_path)
+            } else {
+                None
+            }
+        },
+        None => None
     }
-    
 }
 
 #[derive(Debug)]
@@ -166,9 +173,16 @@ pub trait DockmasterCommand {
     /// run product sub command
     fn run_product(&self) -> Result<(), String> {
         project_operation!(self; {
-            match load_product_settings(dirs::Project::named(self.project_name()).base().join("product_settings.yml")) {
-                Ok(path) => println!("run product!, task={} withPath={}", self.task_name(), path.display()),
-                Err(e) => return Err(e)
+            let settings_path = dirs::Project::named(self.project_name()).base().join("product_settings.yml");
+
+            if settings_path.exists() {
+                match load_product_settings(settings_path) {
+                    Some(execution_base_path) => 
+                        println!("run product!, task={} withPath={}", self.task_name(), execution_base_path.display()),
+                    None => return Err(String::from("execution path is not set"))
+                }
+            } else {
+                return Err(String::from("product setting is not found"));
             }
         })
     }

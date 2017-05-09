@@ -182,9 +182,13 @@ pub trait DockmasterCommand {
                         // TODO load environment variable with env
                         let env_file_path = self.environment_file_with_env();
                         if env_file_path.exists() {
-                            let mut env_file_lines = BufReader::new(File::open(env_file_path).unwrap()).lines();
+                            let mut env_file_lines = BufReader::new(File::open(env_file_path).unwrap()).lines()
+                                .map(|line| line.unwrap())
+                                .filter(|line| line.starts_with("export"))
+                                .map(|line| line.replace("export", "").trim().to_string());
+                            
                             while let Some(line) = env_file_lines.next() {
-                                println!("{}", line.unwrap());
+                                println!("{}", line);
                             }
                         }
 

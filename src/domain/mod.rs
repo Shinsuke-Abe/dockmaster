@@ -177,8 +177,11 @@ pub trait DockmasterCommand {
 
             if settings_path.exists() {
                 match load_product_settings(settings_path) {
-                    Some(execution_base_path) => 
-                        println!("run product!, task={} withPath={}", self.task_name(), execution_base_path.display()),
+                    Some(execution_base_path) => {
+                        // TODO load environment variable with env
+                        // TODO execute command
+                        println!("run product!, task={} withPath={} env={}", self.task_name(), execution_base_path.display(), self.env_name())
+                    },
                     None => return Err(String::from("execution path is not set"))
                 }
             } else {

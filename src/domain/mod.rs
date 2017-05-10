@@ -5,6 +5,7 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufRead;
+use std::collections::HashMap;
 
 pub mod dirs;
 
@@ -179,20 +180,25 @@ pub trait DockmasterCommand {
             if settings_path.exists() {
                 match load_product_settings(settings_path) {
                     Some(execution_base_path) => {
-                        // TODO load environment variable with env
                         let env_file_path = self.environment_file_with_env();
-                        if env_file_path.exists() {
+                        let mut env_variabes = if env_file_path.exists() {
                             let mut env_file_lines = BufReader::new(File::open(env_file_path).unwrap()).lines()
                                 .map(|line| line.unwrap())
                                 .filter(|line| line.starts_with("export"))
                                 .map(|line| line.replace("export", "").trim().to_string());
-                                //https://doc.rust-lang.org/std/process/struct.Command.html#method.envs
                             
-                            while let Some(line) = env_file_lines.next() {
-                                println!("{}", line);
-                            }
-                        }
+                            let mut key_values: HashMap<String, String> = HashMap::new();
 
+                            while let Some(line) = env_file_lines.next() {
+                                key_values.insert(String::from(line.split("=").nth(0).unwrap()), line.split("=").nth(1).unwrap().replace("\"", ""));
+                            }
+
+                            key_values
+                        } else {
+                            HashMap::new()
+                        };
+                        
+                        println!("{:?}", env_variabes);
                         // TODO execute command
                         println!("run product!, task={} withPath={} env={}", self.task_name(), execution_base_path.display(), self.env_name())
                     },

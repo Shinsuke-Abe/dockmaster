@@ -201,6 +201,7 @@ pub trait DockmasterCommand {
                         
                         // println!("{:?}", env_variabes);
                         // execute product
+                        // [todo] source environmentfile && ./gradlew
                         let mut exec_command = Command::new("./gradlew")
                             .current_dir(execution_base_path)
                             .arg(self.task_name());
@@ -209,7 +210,7 @@ pub trait DockmasterCommand {
                             exec_command = exec_command.env(key, value);
                         }
                             //  = output.envs(env_variabes)
-                            
+                        
                         let output = exec_command.output().expect("failed to execute gradle");
 
                         println!("stdout: {}", String::from_utf8_lossy(&output.stdout));

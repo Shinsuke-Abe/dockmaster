@@ -195,6 +195,11 @@ pub trait DockmasterCommand {
 
                         // TODO print standard out while executing...
                         // use status() instead of output()?
+                        // http://keens.github.io/blog/2016/12/02/rustnopurosesu/
+                        // TODO terminate execution gradle
+                        // http://qiita.com/yohhoy/items/f373dd15b934b29dc5b9
+                        // TODO background executing
+                        // http://qiita.com/inosy22/items/341cfc589494b8211844
                         let output = Command::new("./gradlew")
                             .current_dir(execution_base_path)
                             .arg(self.task_name())
@@ -208,8 +213,7 @@ pub trait DockmasterCommand {
                             Ok(())
                         } else {
                             Err(String::from("failed to execute gradle"))
-                        }  
-                        // println!("run product!, task={} withPath={} env={}", self.task_name(), execution_base_path.display(), self.env_name())
+                        }
                     },
                     None => return Err(String::from("execution path is not set"))
                 }

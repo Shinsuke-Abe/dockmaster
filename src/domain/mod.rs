@@ -5,7 +5,7 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufRead;
-use std::collections::HashMap;
+use std::env;
 
 pub mod dirs;
 
@@ -182,36 +182,24 @@ pub trait DockmasterCommand {
                     Some(execution_base_path) => {
                         // load environment variable
                         let env_file_path = self.environment_file_with_env();
-                        let mut env_variabes = if env_file_path.exists() {
+                        if env_file_path.exists() {
                             let mut env_file_lines = BufReader::new(File::open(env_file_path).unwrap()).lines()
                                 .map(|line| line.unwrap())
                                 .filter(|line| line.starts_with("export"))
                                 .map(|line| line.replace("export", "").trim().to_string());
-                            
-                            let mut key_values: HashMap<String, String> = HashMap::new();
 
                             while let Some(line) = env_file_lines.next() {
-                                key_values.insert(String::from(line.split("=").nth(0).unwrap()), line.split("=").nth(1).unwrap().replace("\"", ""));
+                                env::set_var(String::from(line.split("=").nth(0).unwrap()), line.split("=").nth(1).unwrap().replace("\"", ""));
                             }
-
-                            key_values
-                        } else {
-                            HashMap::new()
-                        };
-                        
-                        // println!("{:?}", env_variabes);
-                        // execute product
-                        // [todo] source environmentfile && ./gradlew
-                        let mut exec_command = Command::new("./gradlew")
-                            .current_dir(execution_base_path)
-                            .arg(self.task_name());
-
-                        for (key, value) in env_variabes.iter() {
-                            exec_command = exec_command.env(key, value);
                         }
-                            //  = output.envs(env_variabes)
-                        
-                        let output = exec_command.output().expect("failed to execute gradle");
+
+                        // TODO print standard out while executing...
+                        // use status() instead of output()?
+                        let output = Command::new("./gradlew")
+                            .current_dir(execution_base_path)
+                            .arg(self.task_name())
+                            .output()
+                            .expect("failed to execute gradle");
 
                         println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
                         println!("stderr: {}", String::from_utf8_lossy(&output.stderr));

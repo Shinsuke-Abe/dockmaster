@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::ffi::OsStr;
 use std::fs::File;
+use std::io;
 use std::io::BufReader;
 use std::io::BufRead;
 use std::env;
@@ -200,16 +201,24 @@ pub trait DockmasterCommand {
                         // http://qiita.com/yohhoy/items/f373dd15b934b29dc5b9
                         // TODO background executing
                         // http://qiita.com/inosy22/items/341cfc589494b8211844
-                        let output = Command::new("./gradlew")
+                        println!("if you want to stop application, type [end]\n");
+
+                        if let Ok(mut child) = Command::new("./gradlew")
                             .current_dir(execution_base_path)
                             .arg(self.task_name())
-                            .output()
-                            .expect("failed to execute gradle");
-
-                        println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-                        println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-
-                        if output.status.success() {
+                            .spawn() {
+                            loop {
+                                let mut buf = String::new();
+                                match io::stdin().read_line(&mut buf) {
+                                    Ok(_) => {
+                                        if "end" == buf {
+                                            child.kill().expect("gradle command not running");
+                                            break;
+                                        }
+                                    },
+                                    Err(e) => println!("{}", e)
+                                }
+                            }
                             Ok(())
                         } else {
                             Err(String::from("failed to execute gradle"))
@@ -234,6 +243,7 @@ pub trait DockmasterCommand {
         where I: IntoIterator<Item = S>,
             S: AsRef<OsStr>
     {
+        // TODO use status
         let output = Command::new("docker-compose")
             .env("COMPOSE_FILE", self.docker_compose_file_with_env().into_os_string())
             .env("COMPOSE_PROJECT_NAME", self.project_name())

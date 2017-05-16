@@ -178,56 +178,49 @@ pub trait DockmasterCommand {
         project_operation!(self; {
             let settings_path = dirs::Project::named(self.project_name()).base().join("product_settings.yml");
 
-            if settings_path.exists() {
-                match load_product_settings(settings_path) {
-                    Some(execution_base_path) => {
-                        // load environment variable
-                        let env_file_path = self.environment_file_with_env();
-                        if env_file_path.exists() {
-                            let mut env_file_lines = BufReader::new(File::open(env_file_path).unwrap()).lines()
-                                .map(|line| line.unwrap())
-                                .filter(|line| line.starts_with("export"))
-                                .map(|line| line.replace("export", "").trim().to_string());
-
-                            while let Some(line) = env_file_lines.next() {
-                                env::set_var(String::from(line.split("=").nth(0).unwrap()), line.split("=").nth(1).unwrap().replace("\"", ""));
-                            }
-                        }
-
-                        // TODO print standard out while executing...
-                        // use status() instead of output()?
-                        // http://keens.github.io/blog/2016/12/02/rustnopurosesu/
-                        // TODO terminate execution gradle
-                        // http://qiita.com/yohhoy/items/f373dd15b934b29dc5b9
-                        // TODO background executing
-                        // http://qiita.com/inosy22/items/341cfc589494b8211844
-                        println!("if you want to stop application, type [end]\n");
-
-                        if let Ok(mut child) = Command::new("./gradlew")
-                            .current_dir(execution_base_path)
-                            .arg(self.task_name())
-                            .spawn() {
-                            loop {
-                                let mut buf = String::new();
-                                match io::stdin().read_line(&mut buf) {
-                                    Ok(_) => {
-                                        if "end" == buf {
-                                            child.kill().expect("gradle command not running");
-                                            break;
-                                        }
-                                    },
-                                    Err(e) => println!("{}", e)
-                                }
-                            }
-                            Ok(())
-                        } else {
-                            Err(String::from("failed to execute gradle"))
-                        }
-                    },
-                    None => return Err(String::from("execution path is not set"))
-                }
-            } else {
+            if !settings_path.exists() {
                 return Err(String::from("product setting is not found"));
+            }
+
+            match load_product_settings(settings_path) {
+                Some(execution_base_path) => {
+                    // load environment variable
+                    let env_file_path = self.environment_file_with_env();
+                    if env_file_path.exists() {
+                        let mut env_file_lines = BufReader::new(File::open(env_file_path).unwrap()).lines()
+                            .map(|line| line.unwrap())
+                            .filter(|line| line.starts_with("export"))
+                            .map(|line| line.replace("export", "").trim().to_string());
+
+                        while let Some(line) = env_file_lines.next() {
+                            env::set_var(String::from(line.split("=").nth(0).unwrap()), line.split("=").nth(1).unwrap().replace("\"", ""));
+                        }
+                    }
+
+                    println!("if you want to stop application, type [end]\n");
+
+                    if let Ok(mut child) = Command::new("./gradlew")
+                        .current_dir(execution_base_path)
+                        .arg(self.task_name())
+                        .spawn() {
+                        loop {
+                            let mut buf = String::new();
+                            match io::stdin().read_line(&mut buf) {
+                                Ok(_) => {
+                                    if "end" == buf {
+                                        child.kill().expect("gradle command not running");
+                                        break;
+                                    }
+                                },
+                                Err(e) => println!("{}", e)
+                            }
+                        }
+                        Ok(())
+                    } else {
+                        Err(String::from("failed to execute gradle"))
+                    }
+                },
+                None => return Err(String::from("execution path is not set"))
             }
         })
     }

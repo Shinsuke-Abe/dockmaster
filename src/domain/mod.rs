@@ -129,6 +129,20 @@ pub trait DockmasterCommand {
         dirs::Project::named(self.project_name()).env().join(format!("{}.env", self.actual_env_name(ProcessOnDefault::Env)))
     }
 
+    fn load_environment_variables(&self) {
+        let env_file_path = self.environment_file_with_env();
+        if env_file_path.exists() {
+            let mut env_file_lines = BufReader::new(File::open(env_file_path).unwrap()).lines()
+                .map(|line| line.unwrap())
+                .filter(|line| line.starts_with("export"))
+                .map(|line| line.replace("export", "").trim().to_string());
+
+            while let Some(line) = env_file_lines.next() {
+                env::set_var(String::from(line.split("=").nth(0).unwrap()), line.split("=").nth(1).unwrap().replace("\"", ""));
+            }
+        }
+    }
+
     /// create <project> sub command
     fn create_project_base(&self) -> Result<(), String> {
         println!("  createing {}", self.project_name());
@@ -185,17 +199,7 @@ pub trait DockmasterCommand {
             match load_product_settings(settings_path) {
                 Some(execution_base_path) => {
                     // load environment variable
-                    let env_file_path = self.environment_file_with_env();
-                    if env_file_path.exists() {
-                        let mut env_file_lines = BufReader::new(File::open(env_file_path).unwrap()).lines()
-                            .map(|line| line.unwrap())
-                            .filter(|line| line.starts_with("export"))
-                            .map(|line| line.replace("export", "").trim().to_string());
-
-                        while let Some(line) = env_file_lines.next() {
-                            env::set_var(String::from(line.split("=").nth(0).unwrap()), line.split("=").nth(1).unwrap().replace("\"", ""));
-                        }
-                    }
+                    self.load_environment_variables();
 
                     println!("if you want to stop application, type [end]\n");
 

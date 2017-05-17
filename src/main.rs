@@ -8,9 +8,6 @@ use domain::DockmasterCommand;
 
 mod domain;
 
-// TODO execute product under developing
-//   default => gradle + Spring Boot
-//   set environment variable before execute application
 // TODO connect product directory for project
 // TODO execute product(customizing process)
 // TODO exec command

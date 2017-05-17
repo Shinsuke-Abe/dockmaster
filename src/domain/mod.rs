@@ -207,7 +207,7 @@ pub trait DockmasterCommand {
                             let mut buf = String::new();
                             match io::stdin().read_line(&mut buf) {
                                 Ok(_) => {
-                                    if "end" == buf {
+                                    if "end\n" == buf {
                                         child.kill().expect("gradle command not running");
                                         break;
                                     }

@@ -196,34 +196,30 @@ pub trait DockmasterCommand {
                 return Err(String::from("product setting is not found"));
             }
 
-            match load_product_settings(settings_path) {
-                Some(execution_base_path) => {
-                    self.load_environment_variables();
+            let execution_base_path =
+                try!(load_product_settings(settings_path).ok_or(String::from("execution path is not set")));
 
-                    println!("if you want to stop application, type [end]\n");
+            self.load_environment_variables();
 
-                    let mut child = try!(Command::new("./gradlew")
-                        .current_dir(execution_base_path)
-                        .arg(self.task_name())
-                        .spawn()
-                        .map_err(|e| e.to_string()));
+            println!("if you want to stop application, type [end]\n");
 
-                    loop {
-                        let mut buf = String::new();
-                        match io::stdin().read_line(&mut buf) {
-                            Ok(_) => {
-                                if "end\n" == buf {
-                                    child.kill().expect("gradle command not running");
-                                    break;
-                                }
-                            },
-                            Err(e) => println!("{}", e)
+            let mut child = try!(Command::new("./gradlew")
+                .current_dir(execution_base_path)
+                .arg(self.task_name())
+                .spawn()
+                .map_err(|e| e.to_string()));
+
+            loop {
+                let mut buf = String::new();
+                match io::stdin().read_line(&mut buf) {
+                    Ok(_) => {
+                        if "end\n" == buf {
+                            child.kill().expect("gradle command not running");
+                            break;
                         }
-                    }
-
-                    return Ok(())
-                },
-                None => return Err(String::from("execution path is not set"))
+                    },
+                    Err(e) => println!("{}", e)
+                }
             }
         })
     }

@@ -240,18 +240,14 @@ pub trait DockmasterCommand {
         where I: IntoIterator<Item = S>,
             S: AsRef<OsStr>
     {
-        // TODO use status
-        let output = Command::new("docker-compose")
+        let status = Command::new("docker-compose")
             .env("COMPOSE_FILE", self.docker_compose_file_with_env().into_os_string())
             .env("COMPOSE_PROJECT_NAME", self.project_name())
             .args(commands)
-            .output()
+            .status()
             .expect("failed to execute docker-compose");
 
-        println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
-        println!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-
-        if output.status.success() {
+        if status.success() {
             Ok(())
         } else {
             Err(String::from("failed to execute docker-compose"))

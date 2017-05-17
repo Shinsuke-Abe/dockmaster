@@ -79,14 +79,6 @@ macro_rules! project_operation {
     )
 }
 
-macro_rules! handling_command_error {
-    ($command_execution:expr) => {
-        if let Err(e) = $command_execution {
-            return Err(e);
-        }
-    }
-}
-
 macro_rules! decide_env_name {
     ($sel:ident; $process_setting:expr; $parent_name:expr) => {
         if $process_setting == "parent" {
@@ -175,7 +167,7 @@ pub trait DockmasterCommand {
     /// standby <project-name> sub command
     fn standby_project(&self) -> Result<(), String> {
         project_operation!(self; {
-            handling_command_error!(self.execute_docker_compose(&["up", "-d"]));
+            try!(self.execute_docker_compose(&["up", "-d"]));
             let env_file = self.environment_file_with_env();
             if env_file.exists() {
                 println!(
@@ -227,7 +219,7 @@ pub trait DockmasterCommand {
     /// terminate <project-name> sub command
     fn terminate_project(&self) -> Result<(), String> {
         project_operation!(self; {
-            handling_command_error!(self.execute_docker_compose(&["stop"]))
+            try!(self.execute_docker_compose(&["stop"]))
         })
     }
 

@@ -198,7 +198,6 @@ pub trait DockmasterCommand {
 
             match load_product_settings(settings_path) {
                 Some(execution_base_path) => {
-                    // load environment variable
                     self.load_environment_variables();
 
                     println!("if you want to stop application, type [end]\n");

@@ -203,26 +203,26 @@ pub trait DockmasterCommand {
 
                     println!("if you want to stop application, type [end]\n");
 
-                    if let Ok(mut child) = Command::new("./gradlew")
+                    let mut child = try!(Command::new("./gradlew")
                         .current_dir(execution_base_path)
                         .arg(self.task_name())
-                        .spawn() {
-                        loop {
-                            let mut buf = String::new();
-                            match io::stdin().read_line(&mut buf) {
-                                Ok(_) => {
-                                    if "end\n" == buf {
-                                        child.kill().expect("gradle command not running");
-                                        break;
-                                    }
-                                },
-                                Err(e) => println!("{}", e)
-                            }
+                        .spawn()
+                        .map_err(|e| e.to_string()));
+
+                    loop {
+                        let mut buf = String::new();
+                        match io::stdin().read_line(&mut buf) {
+                            Ok(_) => {
+                                if "end\n" == buf {
+                                    child.kill().expect("gradle command not running");
+                                    break;
+                                }
+                            },
+                            Err(e) => println!("{}", e)
                         }
-                        Ok(())
-                    } else {
-                        Err(String::from("failed to execute gradle"))
                     }
+
+                    return Ok(())
                 },
                 None => return Err(String::from("execution path is not set"))
             }
